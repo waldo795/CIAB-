@@ -178,20 +178,14 @@ function iterateCsvData(){
     updateInstallerSettings();
 
     (brandSetting == true) ?  downloadPackage('CIAB_BrandInstaller.xml', returnXmlString()) : brandSetting = false; 
-    console.log("here under brand setting");
     (welcomeSetting == true) ? downloadPackage('CIAB_WelcomeInstaller.xml',returnWelcomeXml()) : welcomeSetting = false;
-    console.log("here under welcome setting");
     (transactionalEmailSetting == true) ? downloadPackage('CIAB_TransactionalEmailInstaller.xml', returnTransactionalEmailXml()) : transactionalEmailSetting=false;
-    console.log("here under transactionalemail setting");
     (transactionalSmsSetting == true)   ? downloadPackage('CIAB_TransactionalSmsInstaller.xml',   returnTransactionalSmsXml())   : transactionalSmsSetting=false;
 // Stubs for OTP Setup
     (OtpEmlSetting == true) ? downloadPackage('CIAB_OTP_EMAIL_Installer.xml', returnOTPtransactionalEML()) : OtpEmlSetting=false;
-    console.log("here under otp eml setting");
     (OtpSmsSetting == true) ? downloadPackage('CIAB_OTP_SMS_Installer.xml',    returnOTPtransactionalSMS()) : OtpSmsSetting=false;    
-    console.log("here under otp sms setting");
     (contentBlockSetting == true) ? downloadPackage('CIAB_ContentBlock_Installer.xml',    returnContentBlockXml()) : contentBlockSetting=false;  
-    console.log("here under contentblock setting");
-
+   
 }
 
 
