@@ -1,0 +1,2211 @@
+<script>
+
+function initSampleData() {
+  //Adding default data to textbox
+  document.getElementById('tbCSV').value = 
+"UDHD_MARKET,UDHD_BRAND_NAME,UDHD_LANGUAGE,UDHD_REPLY_TO_ADDRESS,UDHD_REPLY_TO_NAME,UDHD_PREF_CENTER,UDHD_WEBSITE_DOMAIN,UDHD_LOGO,UDHD_PRIVACY_POLICY,UDHD_COOKIE_POLICY\r\n"+
+"PK,Ponds,EN,cec.philippines@unilever.com,Unilever Customer Care,,ponds.com,,,\r\n"+
+"PK,Cif,EN,cec.philippines@unilever.com,cec.philippines@unilever.com,,cif.com,,,";
+
+//document.getElementById('tbCSV').value = document.getElementById('tbCSV').value + getMarketMapping("AU");
+
+}
+
+// UPDATE METHOD TO RETURN SERVER.NOW WITH UTC SET
+var buildDate = "2020-06-17 00:00:01.922Z";
+var date = new Date();
+
+var xmlString = "<?xml version='1.0'?>\r\n" +
+"<package author=\"Mark Daniel (mdaniel@adobe.com)\" buildDate=\""+ buildDate +"\"\r\n" +
+"         buildNumber=\"10586\" buildVersion=\"7.0\" label=\"CIAB_BrandInstaller\" name=\"CIAB_BrandInstaller\">\r\n" +
+"  <entities schema=\"nms:branding\">\r\n";
+
+var welcomeXmlString = "<?xml version='1.0'?>\r\n" +
+"<package author=\"Mark Daniel (mdaniel@adobe.com)\" buildDate=\""+ buildDate +"\"\r\n" +
+"         buildNumber=\"10586\" buildVersion=\"7.0\" label=\"CIAB_WelcomeInstaller5.0\"\r\n" +
+"         name=\"CIAB_WelcomeInstaller3.0\">\r\n";
+
+var transactionalEmail = "<?xml version='1.0'?>\r\n" +
+"<package author=\"Mark Daniel (mdaniel@adobe.com)\" buildDate=\""+ buildDate +"\"\r\n" +
+"         buildNumber=\"10586\" buildVersion=\"7.0\" label=\"CIAB_TransactionalEmailInstaller\" name=\"CIAB_TransactionalEmailInstaller\">\r\n";
+
+var transactionalSms = "<?xml version='1.0'?>\r\n" +
+"<package author=\"Mark Daniel (mdaniel@adobe.com)\" buildDate=\""+ buildDate +"\"\r\n" +
+"         buildNumber=\"10586\" buildVersion=\"7.0\" label=\"CIAB_TransactionalSmsInstaller\" name=\"CIAB_TransactionalSmsInstaller\">\r\n";
+
+
+var otpSMS = "<?xml version='1.0'?>\r\n" +
+"<package author=\"Mark Daniel (mdaniel@adobe.com)\" buildDate=\""+ buildDate +"\"\r\n" +
+"         buildNumber=\"10586\" buildVersion=\"7.0\" label=\"CIAB_OTP_SMS_Installer\" name=\"CIAB_OTP_SMS_Installer\">\r\n";
+
+var otpEML = "<?xml version='1.0'?>\r\n" +
+"<package author=\"Mark Daniel (mdaniel@adobe.com)\" buildDate=\""+ buildDate +"\"\r\n" +
+"         buildNumber=\"10586\" buildVersion=\"7.0\" label=\"CIAB_OTP_Email_Installer\" name=\"CIAB_OTP_Email_Installer\">\r\n";
+
+
+var contentBlocks = "<?xml version='1.0'?>\r\n" +
+"<package author=\"Mark Daniel (mdaniel@adobe.com)\" buildDate=\""+ buildDate +"\"\r\n" +
+"         buildNumber=\"10586\" buildVersion=\"7.0\" label=\"CIAB_ContentBlock_Installer\" name=\"CIAB_ContentBlock_Installer\">\r\n";
+
+
+var brandSetting              = "";
+var welcomeSetting            = "";
+var transactionalEmailSetting = "";
+var transactionalSmsSetting   = "";
+var OtpSmsSetting   = "";
+var OtpEmlSetting   = "";
+var contentBlockSetting = "";
+var distinctMarkets = [];
+
+
+
+function  updateInstallerSettings(){
+
+  (document.getElementById("brandPackageInstaller").checked == true) ?  brandSetting = true : brandSetting = false;
+  (document.getElementById("welcomeInstaller").checked == true) ?  welcomeSetting = true : welcomeSetting = false;
+  (document.getElementById("transactionalEmlInstaller").checked == true) ?  transactionalEmailSetting = true : transactionalEmailSetting = false;
+  (document.getElementById("transactionalSmsInstaller").checked == true) ?  transactionalSmsSetting = true : transactionalSmsSetting = false;
+  // STUBS FOR OTP - Pending Go-Live
+  (document.getElementById("OtpSmsInstaller").checked == true) ?  OtpSmsSetting = true : OtpSmsSetting = false;
+  (document.getElementById("OtpEmlInstaller").checked == true) ?  OtpEmlSetting = true : OtpEmlSetting = false;
+  (document.getElementById("contentBlockInstaller").checked == true) ?  contentBlockSetting = true : contentBlockSetting = false;
+
+}
+
+//var transactionalSms = "";
+  // 0 build date
+  // 1 brand label
+  // 2 logo url
+  // 3 mirror page url
+  // 4 name
+  // 5 public label
+  // 6 mirror page url
+  // 7 tracking server url
+  // 8 sender address
+  // 9 sender name
+  // 10 reply address
+  // 11 reply name
+  // 12 Error Address
+  // 13 Language Code
+  // 14 Program Parent(PH_Ponds)
+  // 15 Program Name  (PH_Ponds_Welcome)
+  // 16 Campaign Name (PH_Ponds_Welcome_WEL)
+  // 17 Workflow Name (PH_Ponds_Welcome_WEL_EN)
+  // 18 Delivery Name (PH_Ponds_Welcome_WEL_EN_2020)
+  // 19 ISO2 Market Code
+  // 20 Website URL
+  // 21 Brand name 
+  // 22 Privacy Policy
+  // 23 Cookie Policy
+  // 24 Country Typology
+
+// Insights naming convention
+// <Country Code> - Two letter country code e.g. BE
+// <Brand> - Brand Name, aligned to Brand Master Data convention in Master Brand List e.g. SOLO
+// <Program> - The type of delivery e.g. Monthly Newsletter, Ad Hoc (PH_Ponds_Welcome)
+// <Campaign Type> - Free Text that allows campaigns to be distinguished from each other e.g. May18, Send#4
+// <Language Code> - Two letter code of the language that the email was sent in. e.g. FR
+// <Delivery Label> - Free Text description of the different content. e.g. SL1, Meat, Personalised
+// Variant Free Text – Custom segmentation of the audience. These segments will be reported on as whatever free text is used.
+
+
+function iterateCsvData(){
+
+  var csvData = document.getElementById('tbCSV').value;
+  var dataArr = csvData.split(/\r|\n/);
+  var rows = dataArr.splice(1,dataArr.length-1);
+  var brandArray = new Array();
+  var i =0;
+
+      while(i<rows.length){
+
+        var d = rows[i].split(",");
+        var domain = getMarketMapping(d[0].toString());
+
+        brandArray[0]=buildDate;
+        brandArray[1]=d[1].toString()+" "+d[0].toString();
+        brandArray[2]=d[7];
+        brandArray[3]="http://m."+domain;
+        brandArray[4]=d[1].toString()+d[0].toString();
+        brandArray[5]=d[1].toString()+" "+d[0].toString();
+        brandArray[6]="http://m."+domain;
+        brandArray[7]="http://t."+domain;
+        brandArray[8]=d[1].toString()+"@"+domain;
+        brandArray[9]=d[1].toString()+" "+d[0].toString();
+        brandArray[10]=d[1].toString();
+        brandArray[11]=d[1].toString()+" "+d[0].toString();
+        brandArray[12]="bounce@"+domain;
+        brandArray[13]=d[2];
+        // Welcome Package Parameters
+        brandArray[14]=d[0].toString() + "_" + d[1].toString();
+        brandArray[15]=brandArray[14] + "_Welcome";
+        brandArray[16]=brandArray[15]  + "_WEL";
+        brandArray[17]=brandArray[16]  + "_" + brandArray[13];
+        brandArray[18]=brandArray[17]  + "_" + new Date().getFullYear();
+        brandArray[19]=d[0];
+        brandArray[20]=d[6];
+        brandArray[21]=d[1].toString();
+        brandArray[22]=d[8];
+        brandArray[23]=d[9];
+        brandArray[24]=getTypology(d[0].toString());
+        brandArray[25]=d[5];
+
+
+        generateDistinctList(brandArray);
+
+        buildContentBlocks(brandArray);
+
+        returnBrandingXML(brandArray);
+        welcomePackageBody(brandArray);
+        buildTransactionalEmailXml(brandArray);
+        buildTransactionalSMSXml(brandArray);
+        
+        //downloadPackage('varDump.txt',varDump(brandArray)); TOGGLE TO VIEW BRANDARRAY VALUES
+
+        brandArray.length = 0;
+
+        i++;
+    }
+
+
+
+       buildOTPtransactionalEML();
+       // buildOTPtransactionalSMS(brandArray);
+
+   // }
+
+    // Call footer append functions and insert into download file
+    updateInstallerSettings();
+
+    (brandSetting == true) ?  downloadPackage('CIAB_BrandInstaller.xml', returnXmlString()) : brandSetting = false; 
+    console.log("here under brand setting");
+    (welcomeSetting == true) ? downloadPackage('CIAB_WelcomeInstaller.xml',returnWelcomeXml()) : welcomeSetting = false;
+    console.log("here under welcome setting");
+    (transactionalEmailSetting == true) ? downloadPackage('CIAB_TransactionalEmailInstaller.xml', returnTransactionalEmailXml()) : transactionalEmailSetting=false;
+    console.log("here under transactionalemail setting");
+    (transactionalSmsSetting == true)   ? downloadPackage('CIAB_TransactionalSmsInstaller.xml',   returnTransactionalSmsXml())   : transactionalSmsSetting=false;
+// Stubs for OTP Setup
+    (OtpEmlSetting == true) ? downloadPackage('CIAB_OTP_EMAIL_Installer.xml', returnOTPtransactionalEML()) : OtpEmlSetting=false;
+    console.log("here under otp eml setting");
+    (OtpSmsSetting == true) ? downloadPackage('CIAB_OTP_SMS_Installer.xml',    returnOTPtransactionalSMS()) : OtpSmsSetting=false;    
+    console.log("here under otp sms setting");
+    (contentBlockSetting == true) ? downloadPackage('CIAB_ContentBlock_Installer.xml',    returnContentBlockXml()) : contentBlockSetting=false;  
+    console.log("here under contentblock setting");
+
+}
+
+
+// FUNCTION USED TO PRINT OUT BRAND ARRAY IN ORDER
+function varDump(brandArray){
+
+var s = "// 0 build date\r\n" +
+"  // 1 brand label\r\n" +
+"  // 2 logo url\r\n" +
+"  // 3 mirror page url\r\n" +
+"  // 4 name\r\n" +
+"  // 5 public label\r\n" +
+"  // 6 mirror page url\r\n" +
+"  // 7 tracking server url\r\n" +
+"  // 8 sender address\r\n" +
+"  // 9 sender name\r\n" +
+"  // 10 reply address\r\n" +
+"  // 11 reply name\r\n" +
+"  // 12 Error Address\r\n" +
+"  // 13 Language Code\r\n" +
+"  // 14 Program Parent(PH_Ponds)\r\n" +
+"  // 15 Program Name  (PH_Ponds_Welcome)\r\n" +
+"  // 16 Campaign Name (PH_Ponds_Welcome_WEL)\r\n" +
+"  // 17 Workflow Name (PH_Ponds_Welcome_WEL_EN)\r\n" +
+"  // 18 Delivery Name (PH_Ponds_Welcome_WEL_EN_2020)\r\n" +
+"  // 19 ISO2 Market Code\r\n" +
+"  // 20 Website URL\r\n" +
+"  // 21 Brand name \r\n"+
+/*"Index1: " + brandArray[1].toString()+
+"Index1: " + brandArray[2].toString() + 
+"Index1: " + brandArray[3].toString() +
+"Index1: " + brandArray[4].toString() + 
+"Index1: " + brandArray[5].toString() +
+"Index1: " + brandArray[6].toString() +
+"Index1: " + brandArray[7].toString() +
+"Index1: " + brandArray[8].toString() +
+"Index1: " + brandArray[9].toString() +
+"Index1: " + brandArray[10].toString() +
+"Index1: " + brandArray[11].toString() +
+"Index1: " + brandArray[12].toString() +
+"Index1: " + brandArray[13].toString() +*/
+"Index14: " + brandArray[14] + " " +
+"Index15: " + brandArray[15] + " " +
+"Index16: " + brandArray[16] + " " +
+"Index17: " + brandArray[17] + " " +
+"Index18: " + brandArray[18] + " " +
+"Index19: " + brandArray[19] + " " +
+"Index20: " + brandArray[20] + " " +
+"Index21: " + brandArray[21] + " " +
+"Index22: " + brandArray[22] + " " +
+"Index23: " + brandArray[23]; 
+
+  return s;
+
+}
+
+// Function to handle capturing a distinct list of countries - this is used to ensure that any country specific objects are created correctly
+function generateDistinctList(brandArray){
+
+  distinctMarkets.indexOf(brandArray[19]) === -1 ? distinctMarkets.push(brandArray[19]) : console.log("country already exists in array: "+ brandArray[19]);
+
+}
+
+// Function which loops through array of brand parameters to build series of branding entities within XML schema
+function returnBrandingXML(brandArray){
+
+var string =  
+"    <branding label=\""+ brandArray[1] +"\" logo=\""+ brandArray[2] +"\"\r\n" +
+"              mirrorPageServerUrl=\""+ brandArray[3] +"\" name=\""+ brandArray[4] +"\"\r\n" +
+"              publicLabel=\""+ brandArray[5] +"\" serverUrl=\""+ brandArray[6] +"\" trackingServerUrl=\""+ brandArray[7] +"\" webSiteUrl=\""+ brandArray[20] +"\">\r\n" +
+"      <mailParameters>\r\n" +
+"        <senderAddress>"+ brandArray[8] +"</senderAddress>\r\n" +
+"        <senderName>"+ brandArray[9] +"</senderName>\r\n" +
+"        <replyAddress>"+ brandArray[10] +"</replyAddress>\r\n" +
+"        <replyName>"+ brandArray[11] +"</replyName>\r\n" +
+"        <errorAddress>"+ brandArray[12] +"</errorAddress>\r\n" +
+"      </mailParameters>\r\n" +
+"      <orgUnit _operation=\"none\" name=\"all\"/>\r\n" +
+"      <geoUnit _operation=\"none\" name=\"all\"/>\r\n" +
+"    </branding>\r\n";
+
+
+  xmlString = xmlString + string;
+
+}
+
+
+// Function to append the footer element of the XML string and return this to the calling method
+function returnXmlString(){
+  // attach end string concatenation
+  xmlString = xmlString + "  </entities>\r\n" +
+/*"  <imageConfigPKG publicURLMask=\"http://res.mail.duschdas.de/res/unilever_mkt_prod1/\"/>\r\n" +
+"  <entities schema=\"xtk:packageDef\">\r\n" +
+
+"  </entities>\r\n" +*/
+"</package>\r\n"; 
+
+  return xmlString;
+}
+
+
+  // STUB FOR OTP EMAIL
+function returnOTPtransactionalEML(){
+    otpEML = otpEML + "</package>\r\n";
+  return otpEML;
+}
+// STUB FOR OTP SMS
+function returnOTPtransactionalSMS(brandArray){
+    otpSMS = otpSMS + "</package>\r\n";
+  return otpSMS;
+}
+
+function returnContentBlockXml(){
+    contentBlocks = contentBlocks + "</package>\r\n";
+  return contentBlocks;
+}
+
+
+function downloadPackage(filename, text) {
+  var element = document.createElement('a');
+  element.setAttribute('href', 'data:text/xml;charset=utf-8,' + encodeURIComponent(text));
+  element.setAttribute('download', filename);
+
+  element.style.display = 'none';
+  document.body.appendChild(element);
+
+  element.click();
+
+  document.body.removeChild(element);
+}
+
+
+// Use the UDHD market from the CSV data to provide the correct mailing address subdomain
+function getMarketMapping(text){
+var marketList = 
+{"IN":"mailing.hul.co.in",
+"SG":"mailing.sg.unilever.com",
+"JP":"mailing.unilever.co.jp",
+"NZ":"mailing.unilever.nz",
+"AU":"mailing.au.unilever.com",
+"MY":"mailing.my.unilever.com",
+"ID":"mailing.unilever.id",
+"VN":"mailing.vn.unilever.com",
+"PH":"mailing.ph.unilever.com",
+"TH":"mailing.th.unilever.com",
+"PK":"mailing.unilever.pk",
+"BD":"mailing.bd.unilever.com",
+"LK":"mailing.lk.unilever.com",
+"BE":"mailing.unilever.be",
+"LU":"mailing.unilever.lu",
+"DE":"mailing.unilever.de",
+"AT":"mailing.unilever.at",
+"CH":"mailing.unilever.ch",
+"NL":"mailing.unilever.nl",
+"IT":"mailing.unilever.it",
+"GR":"mailing.unilever.gr",
+"PT":"mailing.unilever-fima.com",
+"FI":"mailing.unilever.fi",
+"DK":"mailing.unilever.dk",
+"SE":"mailing.unilever.se",
+"GB":"mailing.unilever.co.uk",
+"ES":"mailing.unilever.es",
+"PL":"mailing.unilever.pl",
+"RU":"mailing.unilever.ru",
+"FR":"mailing.unilever.fr",
+"HU":"mailing.unilever.hu",
+"CZ":"mailing.unilever.cz",
+"RO":"mailing.unilever.ro",
+"IE":"mailing.unilever.ie",
+"SA":"mailing.sa.unileverme.com",
+"BY":"mailing.unilever.by",
+"EG":"mailing.eg.unileverme.com",
+"MA":"mailing.unilevermaghreb.com",
+"UA":"mailing.ua.unileverleaders.com",
+"IL":"mailing.unilever.co.il",
+"AE":"mailing.ae.cleanipedia.com",
+"TR":"mailing.tr.unilever.com",
+"ZA":"mailing.unilever.co.za",
+"KE":"mailing.ke.unilever-ewa.com",
+"MW":"mailing.mw.unilever-ewa.com",
+"TZ":"mailing.tz.unilever-ewa.com",
+"AR":"mailing.ar.unilever.com",
+"CL":"mailing.cl.unilever.com",
+"CO":"mailing.unilever.co",
+"SV":"mailing.unilever.sv",
+"HN":"mailing.unilever.hn",
+"MX":"mailing.mx.unilever.com",
+"TT":"mailing.unilever.tt ",
+"UY":"mailing.unilever.uy",
+"VE":"mailing.unilever.ve",
+"BR":"mailing.unilever.com.br",
+"US":"mailing.unilever.us",
+"CA":"mailing.unilever.ca",
+"HK":"mailing.unilever.com.hk",
+"TW":"mailing.unilever.com.tw",
+"NE":"",
+"CN":"",
+"HR":"",
+"MM":"",
+"NO":""
+};
+
+return marketList[text];
+}
+
+
+// Use the UDHD market from the CSV data to provide the correct mailing address subdomain
+function getTypology(text){
+
+  var typology = "";
+  var marketList =
+  {
+  "DE":"dachAffinity",
+  "NL":"default_global",
+  "BE":"default_global",
+  "LU":"default_global",
+  "BR":"default_br",
+  "MX":"typo_default_mx",
+  "CL":"typo_default_cl"
+  };
+
+    // CHECK FOR CUSTOM TYPOLOGY RULES WITHIN THESE MARKETS
+    if(text == "DE" || text =="NL" || text == "BE" || text == "LU" || text == "BR" || text == "MX" || text == "CL"){
+      typology = marketList[text];
+
+    } else {
+      typology = "default_global";
+
+    }
+  return typology;
+}
+
+
+
+  // 0 build date
+  // 1 brand label
+  // 2 logo url
+  // 3 mirror page url
+  // 4 name
+  // 5 public label
+  // 6 mirror page url
+  // 7 tracking server url
+  // 8 sender address
+  // 9 sender name
+  // 10 reply address
+  // 11 reply name
+  // 12 Error Address
+  // 13 Language Code
+  // 14 Program Parent(PH_Ponds)
+  // 15 Program Name  (PH_Ponds_Welcome)
+  // 16 Campaign Name (PH_Ponds_Welcome_WEL)
+  // 17 Workflow Name (PH_Ponds_Welcome_WEL_EN)
+  // 18 Delivery Name (PH_Ponds_Welcome_WEL_EN_2020)
+  // 18 ISO2 Market Code
+
+
+function welcomePackageBody(brandArray){
+
+ // PROGRAM BOILERPLATE
+var sb = "  <entities schema=\"nms:program\">\r\n" +
+"    <program builtIn=\"0\" end=\"2020-10-06\" isTemplate=\"0\" label=\""+ brandArray[15]+ "\"\r\n" +
+"             name=\""+ brandArray[15]+ "\" sourceId=\"0\" start=\"2020-04-07\" thumbnail=\"/nl/img/thumbnails/defaultProgram.png\">\r\n" +
+"      <orgUnit _operation=\"none\" name=\"all\"/>\r\n" +
+"      <geoUnit _operation=\"none\" name=\"all\"/>\r\n" +
+"      <parent _operation=\"none\" name=\""+ brandArray[14]+ "\"/>\r\n" +
+"      <campaign builtIn=\"0\" duration=\"5270400\" end=\"2020-06-07\" isTemplate=\"0\" label=\""+ brandArray[16]+ "\"\r\n" +
+"                name=\""+ brandArray[16]+ "\" sourceId=\"0\" start=\"2020-04-07\" thumbnail=\"\">\r\n" +
+"        <orgUnit _operation=\"none\" name=\"all\"/>\r\n" +
+"        <geoUnit _operation=\"none\" name=\"all\"/>\r\n" +
+"        <program _operation=\"none\" name=\""+ brandArray[15]+ "\"/>\r\n" +
+"        <workflow advanced=\"0\" background=\"xtk:backgrounds/neolane.png\" builtIn=\"0\"\r\n" +
+"                  errorLimit=\"0\" exampleFileName=\"\" exampleFileUrl=\"\" handleImportRejects=\"0\"\r\n" +
+"                  history=\"30\" importStatus=\"0\" inProcess=\"0\" isMaster=\"0\" isTemplate=\"0\"\r\n" +
+"                  label=\""+ brandArray[17]+ "\" name=\""+ brandArray[17]+ "\" onError=\"0\"\r\n" +
+"                  production=\"0\" resource=\"profile\" schema=\"nms:recipient\" simulation=\"false\"\r\n" +
+"                  sourceId=\"0\" thumbnail=\"\"\r\n" +
+"                  timezone=\"_inherit_\" type=\"0\">\r\n" +
+"          <activities>\r\n" +
+"            <end collision=\"0\" form=\"end\" img=\"xtk:activities/end.svg\" label=\"End\"\r\n" +
+"                 mask=\"0\" name=\"end1\" onError=\"0\" runOnSimulation=\"true\" timezone=\"_inherit_\"\r\n" +
+"                 x=\"735\" y=\"115\"/>\r\n" +
+"            <fork collision=\"0\" form=\"fork\" img=\"xtk:activities/fork.svg\" label=\"Fork\"\r\n" +
+"                  mask=\"0\" name=\"fork1\" onError=\"0\" runOnSimulation=\"true\" timezone=\"_inherit_\"\r\n" +
+"                  x=\"195\" y=\"215\">\r\n" +
+"              <transitions>\r\n" +
+"                <transition enabled=\"true\" label=\"\" name=\"transition1\" target=\"incremental2\"\r\n" +
+"                            x=\"0\" y=\"0\"/>\r\n" +
+"                <transition enabled=\"true\" label=\"\" name=\"transition2\" target=\"incremental1\"\r\n" +
+"                            x=\"0\" y=\"0\"/>\r\n" +
+"              </transitions>\r\n" +
+"            </fork>\r\n" +
+"            <schedule collision=\"0\" form=\"schedule\" img=\"xtk:activities/clock.svg\"\r\n" +
+"                      label=\"// REVIEW SCHEDULE TO FIT PURPOSES // (Default Every 15mn)\"\r\n" +
+"                      mask=\"0\" name=\"schedule1\" onError=\"0\" runOnSimulation=\"true\"\r\n" +
+"                      timezone=\"_inherit_\" x=\"95\" y=\"215\">\r\n" +
+"              <transitions>\r\n" +
+"                <transition enabled=\"true\" name=\"transition\" target=\"fork1\" x=\"0\"\r\n" +
+"                            y=\"0\"/>\r\n" +
+"              </transitions>\r\n" +
+"              <executionPlanning>\r\n" +
+"                <timeInfo timePeriodicity=\"900\" timeSelection=\"3\"/>\r\n" +
+"                <dayInfo daySelection=\"1\"/>\r\n" +
+"                <validityInfo validity=\"2\"/>\r\n" +
+"              </executionPlanning>\r\n" +
+"            </schedule>\r\n" +
+"            <jstest collision=\"0\" form=\"jstest\" img=\"xtk:activities/condition.svg\"\r\n" +
+"                    label=\"Any Records (?)\" mask=\"0\" name=\"test1\" onError=\"0\" runOnSimulation=\"true\"\r\n" +
+"                    timezone=\"_inherit_\" x=\"593\" xtk=\"1\" y=\"215\">\r\n" +
+"              <transitions>\r\n" +
+"                <test _finalIndex=\"1\" enabled=\"true\" label=\"Y\" name=\"test\" target=\"deliveryEmail3\"\r\n" +
+"                      x=\"0\" y=\"0\">\r\n" +
+"                  <condition><![CDATA[$(vars/@recCount) > 0]]></condition>\r\n" +
+"                </test>\r\n" +
+"                <default enabled=\"true\" label=\"N\" name=\"default\" target=\"end1\" x=\"0\"\r\n" +
+"                         y=\"0\"/>\r\n" +
+"              </transitions>\r\n" +
+"            </jstest>\r\n" +
+"            <incremental collision=\"0\" distinct=\"true\" form=\"incremental\" img=\"nms:activities/incremental.svg\"\r\n" +
+"                         keepAllExtraData=\"false\" label=\"Get Subscribers Profiles (// "+ brandArray[15]+ " //)\"\r\n" +
+"                         lastModifiedPath=\"@created\" mask=\"0\" name=\"incremental2\"\r\n" +
+"                         noAutoPk=\"false\" noAutoPkFilter=\"false\" onError=\"0\" recipientLink=\"subscriber\"\r\n" +
+"                         resource=\"nms:subscriptionRcp:subscriptionRcpDetail\" runOnSimulation=\"true\"\r\n" +
+"                         schema=\"head:subscriptionRcp-subscriptionRcpDetail\" timezone=\"_inherit_\"\r\n" +
+"                         x=\"325\" y=\"115\">\r\n" +
+"              <transitions>\r\n" +
+"                <result enabled=\"true\" name=\"result\" target=\"exclusion1\" x=\"0\" y=\"0\"/>\r\n" +
+"                <noData enabled=\"false\" label=\"No data\" name=\"noData\"/>\r\n" +
+"              </transitions>\r\n" +
+/*"              <select>\r\n" +
+"                <node alias=\"@cusUnileverId\" analyze=\"false\" expr=\"[subscriber/@cusUnileverId]\"\r\n" +
+"                      label=\"Unilever ID\"/>\r\n" +
+"              </select>\r\n" +
+"              <where displayFilter=\"Service is equal to "+ brandArray[14]+ "\">\r\n" +
+"                <condition boolOperator=\"AND\" desc=\"\" expr=\"[service] = \"\r\n" +
+"                           internalId=\"1467482512\"/>\r\n" +
+"              </where>\r\n" +*/
+"            </incremental>\r\n" +
+"            <incremental collision=\"0\" distinct=\"true\" form=\"incremental\" img=\"nms:activities/incremental.svg\"\r\n" +
+"                         keepAllExtraData=\"false\" label=\"Get Delivery Logs (Since last Execution) // "+ brandArray[15]+ " // \"\r\n" +
+"                         lastModifiedPath=\"@eventDate\" mask=\"0\" name=\"incremental1\"\r\n" +
+"                         noAutoPk=\"false\" noAutoPkFilter=\"false\" onError=\"0\" recipientLink=\"profile\"\r\n" +
+"                         resource=\"nms:broadLogRcp:profileBroadLog\" runOnSimulation=\"true\"\r\n" +
+"                         schema=\"head:broadLogRcp-profileBroadLog\" timezone=\"_inherit_\"\r\n" +
+"                         x=\"325\" y=\"315\">\r\n" +
+"              <transitions>\r\n" +
+"                <result enabled=\"true\" name=\"result\" target=\"exclusion1\" x=\"0\" y=\"0\"/>\r\n" +
+"                <noData enabled=\"false\" label=\"No data\" name=\"noData\"/>\r\n" +
+"              </transitions>\r\n" +
+/*"              <select>\r\n" +
+"                <node alias=\"@cusUnileverId\" analyze=\"false\" expr=\"[profile/@cusUnileverId]\"\r\n" +
+"                      label=\"Unilever ID\"/>\r\n" +
+"              </select>\r\n" +
+"              <where displayFilter=\"Segment code  is equal to  &quot;"+ brandArray[15]+ "&quot;\">\r\n" +
+"              <condition boolOperator=\"AND\" desc=\"\" expr=\"@cusSegmentCode = '"+ brandArray[15].toUpperCase()+ "/>'\"\r\n" +
+/*"            TEST AND UNCOMMENT / REMOVE '/>' FROM LINE ABOVE IF NOT WORKING             internalId=\"1467482513\"/>\r\n" +*/
+//"              </where>\r\n" +
+"            </incremental>\r\n" +
+"            <exclusion collision=\"0\" form=\"exclusion\" img=\"nms:activities/exclusion.svg\"\r\n" +
+"                       label=\"Exclusion (// "+ brandArray[15]+ " //)\" mainSet=\"incremental2\"\r\n" +
+"                       mask=\"0\" name=\"exclusion1\" onError=\"0\" runOnSimulation=\"true\"\r\n" +
+"                       timezone=\"_inherit_\" useKeyForReconciliation=\"true\" x=\"465\"\r\n" +
+"                       y=\"215\">\r\n" +
+"              <transitions>\r\n" +
+"                <result code=\""+ brandArray[15].toUpperCase()+ "\" enabled=\"true\" name=\"result\" target=\"test1\"\r\n" +
+"                        x=\"0\" y=\"0\"/>\r\n" +
+"                <remainder enabled=\"false\" label=\"Complement\" name=\"remainder\"/>\r\n" +
+"              </transitions>\r\n" +
+"              <exclusionSet _finalIndex=\"1\" excludeType=\"2\" id=\"1670709554\" name=\"incremental1\">\r\n" +
+"                <joinKeys _finalIndex=\"1\" xpathDst=\"@cusUnileverId\" xpathSrc=\"@cusUnileverId\"/>\r\n" +
+"              </exclusionSet>\r\n" +
+"            </exclusion>\r\n" +
+"            <delivery actionType=\"1\" channel=\"0\" collision=\"0\" delivery-cs=\""+ brandArray[17]+ "\"\r\n" +
+"                      deliverySel=\"3\" form=\"delivery\" img=\"nms:activities/recurrentEmail.svg\"\r\n" +
+"                      label=\""+ brandArray[17]+ "\" mask=\"0\" name=\"deliveryEmail3\" onError=\"0\"\r\n" +
+"                      runOnSimulation=\"true\" targetSel=\"0\" timezone=\"_inherit_\" x=\"830\"\r\n" +
+"                      y=\"270\">\r\n" +
+"              <transitions>\r\n" +
+"                <done enabled=\"false\" name=\"done\"/>\r\n" +
+"                <error enabled=\"false\" label=\"Error\" name=\"error\"/>\r\n" +
+"              </transitions>\r\n" +
+"              <delivery _operation=\"none\" name=\""+ brandArray[18]+ "\"/>\r\n" +
+"            </delivery>\r\n" +
+"          </activities>\r\n" +
+"          <orgUnit _operation=\"none\" name=\"all\"/>\r\n" +
+"          <geoUnit _operation=\"none\" name=\"all\"/>\r\n" +
+"          <campaign _operation=\"none\" name=\""+ brandArray[16]+ "\"/>\r\n" +
+"          <nmsDelivery-ownerWorkflow FCP=\"0\" advanced=\"0\" analysisStep=\"0\" builtIn=\"0\"\r\n" +
+"                                     contentModTime=\"\" contentSource=\"0\" cusDeliveryCode=\"\"\r\n" +
+"                                     cusUtmCampaign=\"\" cusUtmMedium=\"\" cusUtmSource=\"\"\r\n" +
+"                                     executionType=\"1\" forcePreparation=\"0\" hasAttachments=\"0\"\r\n" +
+"                                     hideAudienceStep=\"0\" isMaster=\"1\" isTemplate=\"0\"\r\n" +
+"                                     label=\""+ brandArray[18]+ "\" name=\""+ brandArray[18]+ "\"\r\n" +
+"                                     priority=\"10\" resourceVersion=\"head\" sourceId=\"0\"\r\n" +
+"                                     thumbnail=\"\">\r\n" +
+"            <forecast simuResponseType=\"0\" weight=\"5\" weightType=\"0\">\r\n" +
+"              <weightFormula>$(deliveryWeight)</weightFormula>\r\n" +
+"            </forecast>\r\n" +
+"            <scheduling IPAffinity=\"\" contactDate=\"\" contactDateTimeZone=\"Europe/London\"\r\n" +
+"                        delayExtraction=\"0\" delayed=\"0\" extracted=\"\" extraction=\"\"\r\n" +
+"                        sendingMode=\"0\" validationMode=\"manual\" validityDate=\"\" webResPurged=\"0\"\r\n" +
+"                        webValidityDate=\"\"/>\r\n" +
+"            <abTesting decisionMode=\"manual\" decisionStrategy=\"openRate\" enabled=\"0\"\r\n" +
+"                       learningPeriod=\"86400\" learningSizeMode=\"manual\" pulseNotificationSent=\"false\"\r\n" +
+"                       testMode=\"subject\" winner=\"\"/>\r\n" +
+"            <execution broadEndDate=\"\" broadStartDate=\"\" firstPassEndDate=\"\" maxRetry=\"5\"\r\n" +
+"                       nextPassDate=\"\" passStartDate=\"\" retry=\"0\" retryPeriod=\"3600\">\r\n" +
+"              <controlGroup type=\"3\">\r\n" +
+"                <where filteringSchema=\"\"/>\r\n" +
+"              </controlGroup>\r\n" +
+"            </execution>\r\n" +
+"            <scenario aggregationPeriod=\"1\" validityDuration=\"432000\" webValidityDuration=\"5184000\"/>\r\n" +
+"            <fcpParameters addFormatInPrefix=\"true\" fcpMailFormat=\"normal\" fcpVariantSel=\"auto\"\r\n" +
+"                           labelPrefix=\"Proof\" useSpecificOutputFile=\"false\"/>\r\n" +
+"            <mailParameters mirrorPagePolicy=\"default\" needMirrorPage=\"0\">\r\n" +
+
+      "        <senderAddress>"+ brandArray[8] +"</senderAddress>\r\n" +
+      "        <senderName>"+ brandArray[9] +"</senderName>\r\n" +
+      "        <replyAddress>"+ brandArray[10] +"</replyAddress>\r\n" +
+      "        <replyName>"+ brandArray[11] +"</replyName>\r\n" +
+      "        <errorAddress>"+ brandArray[12] +"</errorAddress>\r\n" +
+
+/*"            <senderAddress><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultSenderAddress\" contenteditable=\"false\">Email address of default sender</span>]]></senderAddress>\r\n" +
+"              <replyAddress><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultReplyAddress\" contenteditable=\"false\">Default reply-to email address</span>]]></replyAddress>\r\n" +
+"              <replyName><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultReplyName\" contenteditable=\"false\">Name of default reply-to email address</span>]]></replyName>\r\n" +
+"              <errorAddress><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultErrorAddress\" contenteditable=\"false\">Default error email address</span>]]></errorAddress>\r\n" +*/
+"            </mailParameters>\r\n" +
+"            <smsParameters maxSmsPerMessage=\"1\" mobileMsgType=\"0\" smsAppType=\"2\"\r\n" +
+"                           smsMode=\"-1\" smsPriority=\"0\"/>\r\n" +
+"            <pushnotificationParameters maxPushnotificationPayloadSize=\"4096\"/>\r\n" +
+"            <targets audienceType=\"acsAudience\" filteringSchema=\"\" maxErrorCount=\"3\"\r\n" +
+"                     qualityRequired=\"3\">\r\n" +
+"              <deliveryTarget>\r\n" +
+"                <where filteringResource=\"profile\" filteringSchema=\"\" targetResource=\"profile\"/>\r\n" +
+"              </deliveryTarget>\r\n" +
+"              <seedTarget>\r\n" +
+"                <where filteringResource=\"seedMember\" filteringSchema=\"nms:seedMember\"/>\r\n" +
+"              </seedTarget>\r\n" +
+"            </targets>\r\n" +
+"            <content contextResource=\"profile\" defaultVariant=\"default\" formatSelection=\"preferences\"\r\n" +
+"                     htmlCompression=\"false\" ignoreScripts=\"false\">\r\n" +
+"              <scriptContext name=\"default\"/>\r\n" +
+"              <email autoRefresh=\"false\" syncHtmlToPlainText=\"false\" variant=\"default\"\r\n" +
+"                     variantLabel=\"Default\">\r\n" +
+"                <senderName>\r\n" +
+"                  <source><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultSenderName\" contenteditable=\"false\">Default sender name</span>]]></source>\r\n" +
+"                </senderName>\r\n" +
+"                <subject>\r\n" +
+"                  <source><![CDATA[Welcome to "+ brandArray[21]+ "]]></source>\r\n" +
+"                </subject>\r\n" +
+"                <html thumbnail=\"\">\r\n" +
+"                  <source><![CDATA[<!DOCTYPE html>\r\n" +
+"<html><head><meta name=\"content-version\" content=\"3.2.0\"><span  class=\"nl-dce-fragment\" data-nl-name=\"EmailUrlBase\" >&nbsp;</span><meta name=\"x-apple-disable-message-reformatting\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1.0\"><!--[if gte mso 9]><style acrite-mso-css=\"true\">.image-container div {  display: block;}.structure__table td {  padding: 0;  border: none;}.button-container {  border: none !important;  padding: 0 !important;  line-height: normal !important;}.acr-structure {  margin: 0 !important;}.acr-component {  margin: 0 !important;}.acr-fragment {  margin: 0 !important;}.colspan1, .colspan2, .colspan3, .colspan4, .colspan33, .colspan66 {  box-sizing: border-box !important;}</style><![endif]--></head><body class=\"\"><div class=\"acr-container\"><div class=\"acr-structure\" data-structure-id=\"1-1-column\" data-structure-name=\"richtext.structure_1_1_column\"><table class=\"structure__table\" align=\"center\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"750\"><tbody><tr><th class=\"colspan1\"><div class=\"acr-fragment acr-component\" data-component-id=\"text\" data-contenteditable=\"false\"><div class=\"text-container\" data-contenteditable=\"true\"><p><span class=\"acr-block nl-dce-fragment\" data-nl-label=\"cusWelcomeTemplateBlock"+brandArray[14]+" (cusWelcomeTemplateBlock"+brandArray[14]+")\" data-nl-name=\"cusWelcomeTemplateBlock"+brandArray[14]+"\" data-contenteditable=\"false\">cusWelcomeTemplateBlock"+brandArray[14]+"</span><br></p></div></div></th></tr></tbody></table></div></div></body></html>]]></source>\r\n" +
+"            </html>\r\n" +
+"              </email>\r\n" +
+"            </content>\r\n" +
+"            <output seedInsertMode=\"0\">\r\n" +
+"              <extraction>\r\n" +
+"                <source batchSize=\"200\" format=\"text\" startPath=\"/\" upload=\"true\">\r\n" +
+"                  <dataSourceConfig codepage=\"1252\" colType=\"0\" ignoreConfigCheck=\"false\"\r\n" +
+"                                    strictColumnCheck=\"false\" textQualifier=\"none\"\r\n" +
+"                                    timezone=\"_inherit_\" useCR=\"false\" useLF=\"false\"/>\r\n" +
+"                  <dataSourceConfigDest codepage=\"1252\" colType=\"0\" ignoreConfigCheck=\"false\"\r\n" +
+"                                        strictColumnCheck=\"false\" textQualifier=\"none\"\r\n" +
+"                                        timezone=\"_inherit_\" useCR=\"false\" useLF=\"false\"/>\r\n" +
+"                </source>\r\n" +
+"                <destination downloadDestFile=\"true\" endRecord=\"0\" progressLines=\"20\"\r\n" +
+"                             putUnmappedCols=\"true\" startPath=\"/\" startRecord=\"0\"\r\n" +
+"                             transactionLines=\"200\">\r\n" +
+"                  <exportFormat allAsString=\"false\" analyze=\"false\" codepage=\"1252\"\r\n" +
+"                                delEscaping=\"duplicateDel\" delimitor=\"delNone\" format=\"text\"\r\n" +
+"                                lineEnd=\"0\" saveTitle=\"true\" separator=\"sepTab\" timezone=\"_inherit_\">\r\n" +
+"                    <dataFormat decimalCount=\"-1\" hideTime=\"false\" orderDate=\"ymd\"\r\n" +
+"                                sepDate=\"/\" sepDateTime=\" \" sepNumber=\".\" sepThousand=\"false\"\r\n" +
+"                                sepTime=\":\" showMs=\"false\" showSec=\"true\" yearShort=\"false\"/>\r\n" +
+"                  </exportFormat>\r\n" +
+"                </destination>\r\n" +
+"              </extraction>\r\n" +
+"            </output>\r\n" +
+"            <tracking enabled=\"true\" openEnabled=\"true\">\r\n" +
+"              <clickFormula><![CDATA[<%@ include option='NmsTracking_ClickFormula' %>]]></clickFormula>\r\n" +
+"              <openFormula><![CDATA[<%@ include option='NmsTracking_OpenFormula' %>]]></openFormula>\r\n" +
+"            </tracking>\r\n" +
+"            <notifications pulseAbTestComplete=\"true\"/>\r\n" +
+"            <advancedParameters businessRankingRuleActive=\"false\" codepage=\"65001\"\r\n" +
+"                                emailArchiving=\"false\" forceCodepage=\"false\" showSQL=\"false\"\r\n" +
+"                                verifyMode=\"false\"/>\r\n" +
+"            <properties FCPCount=\"0\" ctrlGrpExclusion=\"0\" deliveryState=\"0\" exclusion=\"0\"\r\n" +
+"                        renderingCount=\"0\" scenarioModTime=\"\" toDeliver=\"0\" trapCount=\"0\"\r\n" +
+"                        url=\"0\"/>\r\n" +
+"            <volume duration=\"1\" rate=\"100\"/>\r\n" +
+"            <offerManagement active=\"0\" batchId=\"\"/>\r\n" +
+"            <validation sandboxMode=\"0\"/>\r\n" +
+"            <dynamicIndicators datasource=\"\" dynamicDelivered=\"0\" dynamicDeliveredRatio=\"0\"\r\n" +
+"                               dynamicError=\"0\" dynamicErrorRatio=\"0\" dynamicRecipientClick=\"0\"\r\n" +
+"                               dynamicRecipientOpen=\"0\" dynamicSent=\"0\"/>\r\n" +
+"            <indicators amount=\"0\" article=\"0\" delivered=\"0\" deliveredWithoutTraps=\"0\"\r\n" +
+"                        dirty=\"0\" disabled=\"0\" error=\"0\" errorPending=\"0\" firstPassSent=\"0\"\r\n" +
+"                        forward=\"0\" invalidDomain=\"0\" lastErrorComputation=\"\" lastTrackingComputation=\"\"\r\n" +
+"                        mailboxFull=\"0\" mirrorPage=\"0\" newQuarantine=\"0\" notConnected=\"0\"\r\n" +
+"                        notSent=\"0\" optOut=\"0\" partsSent=\"0\" personClick=\"0\" processed=\"0\"\r\n" +
+"                        recipientClick=\"0\" recipientOpen=\"0\" refused=\"0\" rejected=\"0\"\r\n" +
+"                        screamers=\"0\" sent=\"0\" totalRecipientClick=\"0\" totalRecipientOpen=\"0\"\r\n" +
+"                        totalWebPage=\"0\" trackingPending=\"0\" transaction=\"0\" unknownUser=\"0\"\r\n" +
+"                        unreachable=\"0\" webPage=\"0\"/>\r\n" +
+"            <triggerMessage eventType=\"\" mcTemplateId=\"0\"/>\r\n" +
+"            <orgUnit _operation=\"none\" name=\"all\"/>\r\n" +
+"            <geoUnit _operation=\"none\" name=\"all\"/>\r\n" +
+"            <campaign _operation=\"none\" name=\""+ brandArray[16]+ "\"/>\r\n" +
+"            <workflow _operation=\"none\" name=\""+ brandArray[17]+ "\"/>\r\n" +
+"            <deliveryProvider _operation=\"none\" name=\"defaultEmailBulk\"/>\r\n" +
+"            <typology _operation=\"none\" name=\""+ brandArray[24]+ "\"/>\r\n" +
+"            <mapping _operation=\"none\" name=\"mapRecipient\"/>\r\n" +
+"            <ownerWorkflow _operation=\"none\" name=\""+ brandArray[17]+ "\"/>\r\n" +
+"            <branding _operation=\"none\" name=\"branding\"/>\r\n" +
+"          </nmsDelivery-ownerWorkflow>\r\n" +
+"        </workflow>\r\n" +
+"      </campaign>\r\n" +
+"    </program>\r\n" +
+"  </entities>\r\n" +
+
+
+
+// ########################################################
+// ############# CAMPAIGN BOILER PLATE ####################
+// ########################################################
+
+
+"  <entities schema=\"nms:campaign\">\r\n" +
+"    <campaign builtIn=\"0\" duration=\"5270400\" end=\"2020-06-07\" isTemplate=\"0\" label=\""+ brandArray[16]+ "\"\r\n" +
+"              name=\""+ brandArray[16]+ "\" sourceId=\"0\" start=\"2020-04-07\" thumbnail=\"\">\r\n" +
+"      <orgUnit _operation=\"none\" name=\"all\"/>\r\n" +
+"      <geoUnit _operation=\"none\" name=\"all\"/>\r\n" +
+"      <program _operation=\"none\" name=\""+ brandArray[15]+ "\"/>\r\n" +
+"      <workflow advanced=\"0\" background=\"xtk:backgrounds/neolane.png\" builtIn=\"0\"\r\n" +
+"                errorLimit=\"0\" exampleFileName=\"\" exampleFileUrl=\"\" handleImportRejects=\"0\"\r\n" +
+"                history=\"30\" importStatus=\"0\" inProcess=\"0\" isMaster=\"0\" isTemplate=\"0\"\r\n" +
+"                label=\""+ brandArray[17]+ "\" name=\""+ brandArray[17]+ "\" onError=\"0\"\r\n" +
+"                production=\"0\" resource=\"profile\" schema=\"nms:recipient\" simulation=\"false\"\r\n" +
+"                sourceId=\"0\" thumbnail=\"\"\r\n" +
+"                timezone=\"_inherit_\" type=\"0\">\r\n" +
+"        <activities>\r\n" +
+"          <end collision=\"0\" form=\"end\" img=\"xtk:activities/end.svg\" label=\"End\"\r\n" +
+"               mask=\"0\" name=\"end1\" onError=\"0\" runOnSimulation=\"true\" timezone=\"_inherit_\"\r\n" +
+"               x=\"735\" y=\"115\"/>\r\n" +
+"          <fork collision=\"0\" form=\"fork\" img=\"xtk:activities/fork.svg\" label=\"Fork\"\r\n" +
+"                mask=\"0\" name=\"fork1\" onError=\"0\" runOnSimulation=\"true\" timezone=\"_inherit_\"\r\n" +
+"                x=\"195\" y=\"215\">\r\n" +
+"            <transitions>\r\n" +
+"              <transition enabled=\"true\" label=\"\" name=\"transition1\" target=\"incremental2\"\r\n" +
+"                          x=\"0\" y=\"0\"/>\r\n" +
+"              <transition enabled=\"true\" label=\"\" name=\"transition2\" target=\"incremental1\"\r\n" +
+"                          x=\"0\" y=\"0\"/>\r\n" +
+"            </transitions>\r\n" +
+"          </fork>\r\n" +
+"          <schedule collision=\"0\" form=\"schedule\" img=\"xtk:activities/clock.svg\"\r\n" +
+"                    label=\"// REVIEW SCHEDULE TO FIT PURPOSES // (Default Every 15mn)\"\r\n" +
+"                    mask=\"0\" name=\"schedule1\" onError=\"0\" runOnSimulation=\"true\"\r\n" +
+"                    timezone=\"_inherit_\" x=\"95\" y=\"215\">\r\n" +
+"            <transitions>\r\n" +
+"              <transition enabled=\"true\" name=\"transition\" target=\"fork1\" x=\"0\" y=\"0\"/>\r\n" +
+"            </transitions>\r\n" +
+"            <executionPlanning>\r\n" +
+"              <timeInfo timePeriodicity=\"900\" timeSelection=\"3\"/>\r\n" +
+"              <dayInfo daySelection=\"1\"/>\r\n" +
+"              <validityInfo validity=\"2\"/>\r\n" +
+"            </executionPlanning>\r\n" +
+"          </schedule>\r\n" +
+"          <jstest collision=\"0\" form=\"jstest\" img=\"xtk:activities/condition.svg\"\r\n" +
+"                  label=\"Any Records (?)\" mask=\"0\" name=\"test1\" onError=\"0\" runOnSimulation=\"true\"\r\n" +
+"                  timezone=\"_inherit_\" x=\"593\" xtk=\"1\" y=\"215\">\r\n" +
+"            <transitions>\r\n" +
+"              <test _finalIndex=\"1\" enabled=\"true\" label=\"Y\" name=\"test\" target=\"deliveryEmail3\"\r\n" +
+"                    x=\"0\" y=\"0\">\r\n" +
+"                <condition><![CDATA[$(vars/@recCount) > 0]]></condition>\r\n" +
+"              </test>\r\n" +
+"              <default enabled=\"true\" label=\"N\" name=\"default\" target=\"end1\" x=\"0\"\r\n" +
+"                       y=\"0\"/>\r\n" +
+"            </transitions>\r\n" +
+"          </jstest>\r\n" +
+"          <incremental collision=\"0\" distinct=\"true\" form=\"incremental\" img=\"nms:activities/incremental.svg\"\r\n" +
+"                       keepAllExtraData=\"false\" label=\"Get Subscribers Profiles (// "+ brandArray[15]+ " //)\"\r\n" +
+"                       lastModifiedPath=\"@created\" mask=\"0\" name=\"incremental2\" noAutoPk=\"false\"\r\n" +
+"                       noAutoPkFilter=\"false\" onError=\"0\" recipientLink=\"subscriber\"\r\n" +
+"                       resource=\"nms:subscriptionRcp:subscriptionRcpDetail\" runOnSimulation=\"true\"\r\n" +
+"                       schema=\"head:subscriptionRcp-subscriptionRcpDetail\" timezone=\"_inherit_\"\r\n" +
+"                       x=\"325\" y=\"115\">\r\n" +
+"            <transitions>\r\n" +
+"              <result enabled=\"true\" name=\"result\" target=\"exclusion1\" x=\"0\" y=\"0\"/>\r\n" +
+"              <noData enabled=\"false\" label=\"No data\" name=\"noData\"/>\r\n" +
+"            </transitions>\r\n" +
+/*"            <select>\r\n" +
+"              <node alias=\"@cusUnileverId\" analyze=\"false\" expr=\"[subscriber/@cusUnileverId]\"\r\n" +
+"                    label=\"Unilever ID\"/>\r\n" +
+"            </select>\r\n" +
+"            <where displayFilter=\"Service is equal to "+ brandArray[14]+ "\">\r\n" +
+"              <condition boolOperator=\"AND\" desc=\"\" expr=\"[service] = \"\r\n" +
+"                         internalId=\"1467482512\"/>\r\n" +
+"            </where>\r\n" +*/
+"          </incremental>\r\n" +
+"          <incremental collision=\"0\" distinct=\"true\" form=\"incremental\" img=\"nms:activities/incremental.svg\"\r\n" +
+"                       keepAllExtraData=\"false\" label=\"Get Delivery Logs (Since last Execution) // "+ brandArray[15]+ " // \"\r\n" +
+"                       lastModifiedPath=\"@eventDate\" mask=\"0\" name=\"incremental1\"\r\n" +
+"                       noAutoPk=\"false\" noAutoPkFilter=\"false\" onError=\"0\" recipientLink=\"profile\"\r\n" +
+"                       resource=\"nms:broadLogRcp:profileBroadLog\" runOnSimulation=\"true\"\r\n" +
+"                       schema=\"head:broadLogRcp-profileBroadLog\" timezone=\"_inherit_\"\r\n" +
+"                       x=\"325\" y=\"315\">\r\n" +
+"            <transitions>\r\n" +
+"              <result enabled=\"true\" name=\"result\" target=\"exclusion1\" x=\"0\" y=\"0\"/>\r\n" +
+"              <noData enabled=\"false\" label=\"No data\" name=\"noData\"/>\r\n" +
+"            </transitions>\r\n" +
+/*"              <select>\r\n" +
+"                <node alias=\"@cusUnileverId\" analyze=\"false\" expr=\"[profile/@cusUnileverId]\"\r\n" +
+"                      label=\"Unilever ID\"/>\r\n" +
+"              </select>\r\n" +
+"              <where displayFilter=\"Segment code  is equal to  &quot;"+ brandArray[15]+ "&quot;\">\r\n" +
+"              <condition boolOperator=\"AND\" desc=\"\" expr=\"@cusSegmentCode = '"+ brandArray[15].toUpperCase()+ "/>'\"\r\n" +
+/*"            TEST AND UNCOMMENT / REMOVE '/>' FROM LINE ABOVE IF NOT WORKING             internalId=\"1467482513\"/>\r\n" +*/
+//"              </where>\r\n" +
+"          </incremental>\r\n" +
+"          <exclusion collision=\"0\" form=\"exclusion\" img=\"nms:activities/exclusion.svg\"\r\n" +
+"                     label=\"Exclusion (// "+ brandArray[15]+ " //)\" mainSet=\"incremental2\"\r\n" +
+"                     mask=\"0\" name=\"exclusion1\" onError=\"0\" runOnSimulation=\"true\"\r\n" +
+"                     timezone=\"_inherit_\" useKeyForReconciliation=\"true\" x=\"465\"\r\n" +
+"                     y=\"215\">\r\n" +
+"            <transitions>\r\n" +
+"              <result code=\""+ brandArray[15].toUpperCase()+ "\" enabled=\"true\" name=\"result\" target=\"test1\"\r\n" +
+"                      x=\"0\" y=\"0\"/>\r\n" +
+"              <remainder enabled=\"false\" label=\"Complement\" name=\"remainder\"/>\r\n" +
+"            </transitions>\r\n" +
+"            <exclusionSet _finalIndex=\"1\" excludeType=\"2\" id=\"1670709554\" name=\"incremental1\">\r\n" +
+"              <joinKeys _finalIndex=\"1\" xpathDst=\"@cusUnileverId\" xpathSrc=\"@cusUnileverId\"/>\r\n" +
+"            </exclusionSet>\r\n" +
+"          </exclusion>\r\n" +
+"          <delivery actionType=\"1\" channel=\"0\" collision=\"0\" delivery-cs=\""+ brandArray[17]+ "\"\r\n" +
+"                    deliverySel=\"3\" form=\"delivery\" img=\"nms:activities/recurrentEmail.svg\"\r\n" +
+"                    label=\""+ brandArray[17]+ "\" mask=\"0\" name=\"deliveryEmail3\" onError=\"0\"\r\n" +
+"                    runOnSimulation=\"true\" targetSel=\"0\" timezone=\"_inherit_\" x=\"830\"\r\n" +
+"                    y=\"270\">\r\n" +
+"            <transitions>\r\n" +
+"              <done enabled=\"false\" name=\"done\"/>\r\n" +
+"              <error enabled=\"false\" label=\"Error\" name=\"error\"/>\r\n" +
+"            </transitions>\r\n" +
+"            <delivery _operation=\"none\" name=\""+ brandArray[18]+ "\"/>\r\n" +
+"          </delivery>\r\n" +
+"        </activities>\r\n" +
+"        <orgUnit _operation=\"none\" name=\"all\"/>\r\n" +
+"        <geoUnit _operation=\"none\" name=\"all\"/>\r\n" +
+"        <campaign _operation=\"none\" name=\""+ brandArray[16]+ "\"/>\r\n" +
+"        <nmsDelivery-ownerWorkflow FCP=\"0\" advanced=\"0\" analysisStep=\"0\" builtIn=\"0\"\r\n" +
+"                                   contentModTime=\"\" contentSource=\"0\" cusDeliveryCode=\"\"\r\n" +
+"                                   cusUtmCampaign=\"\" cusUtmMedium=\"\" cusUtmSource=\"\"\r\n" +
+"                                   executionType=\"1\" forcePreparation=\"0\" hasAttachments=\"0\"\r\n" +
+"                                   hideAudienceStep=\"0\" isMaster=\"1\" isTemplate=\"0\"\r\n" +
+"                                   label=\""+ brandArray[18]+ "\" name=\""+ brandArray[18]+ "\"\r\n" +
+"                                   priority=\"10\" resourceVersion=\"head\" sourceId=\"0\"\r\n" +
+"                                   thumbnail=\"\">\r\n" +
+"          <forecast simuResponseType=\"0\" weight=\"5\" weightType=\"0\">\r\n" +
+"            <weightFormula>$(deliveryWeight)</weightFormula>\r\n" +
+"          </forecast>\r\n" +
+"          <scheduling IPAffinity=\"\" contactDate=\"\" contactDateTimeZone=\"Europe/London\"\r\n" +
+"                      delayExtraction=\"0\" delayed=\"0\" extracted=\"\" extraction=\"\"\r\n" +
+"                      sendingMode=\"0\" validationMode=\"manual\" validityDate=\"\" webResPurged=\"0\"\r\n" +
+"                      webValidityDate=\"\"/>\r\n" +
+"          <abTesting decisionMode=\"manual\" decisionStrategy=\"openRate\" enabled=\"0\"\r\n" +
+"                     learningPeriod=\"86400\" learningSizeMode=\"manual\" pulseNotificationSent=\"false\"\r\n" +
+"                     testMode=\"subject\" winner=\"\"/>\r\n" +
+"          <execution broadEndDate=\"\" broadStartDate=\"\" firstPassEndDate=\"\" maxRetry=\"5\"\r\n" +
+"                     nextPassDate=\"\" passStartDate=\"\" retry=\"0\" retryPeriod=\"3600\">\r\n" +
+"            <controlGroup type=\"3\">\r\n" +
+"              <where filteringSchema=\"\"/>\r\n" +
+"            </controlGroup>\r\n" +
+"          </execution>\r\n" +
+"          <scenario aggregationPeriod=\"1\" validityDuration=\"432000\" webValidityDuration=\"5184000\"/>\r\n" +
+"          <fcpParameters addFormatInPrefix=\"true\" fcpMailFormat=\"normal\" fcpVariantSel=\"auto\"\r\n" +
+"                         labelPrefix=\"Proof\" useSpecificOutputFile=\"false\"/>\r\n" +
+"          <mailParameters mirrorPagePolicy=\"default\" needMirrorPage=\"0\">\r\n" +
+"            <senderAddress><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultSenderAddress\" contenteditable=\"false\">Email address of default sender</span>]]></senderAddress>\r\n" +
+"            <replyAddress><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultReplyAddress\" contenteditable=\"false\">Default reply-to email address</span>]]></replyAddress>\r\n" +
+"            <replyName><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultReplyName\" contenteditable=\"false\">Name of default reply-to email address</span>]]></replyName>\r\n" +
+"            <errorAddress><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultErrorAddress\" contenteditable=\"false\">Default error email address</span>]]></errorAddress>\r\n" +
+"          </mailParameters>\r\n" +
+"          <smsParameters maxSmsPerMessage=\"1\" mobileMsgType=\"0\" smsAppType=\"2\" smsMode=\"-1\"\r\n" +
+"                         smsPriority=\"0\"/>\r\n" +
+"          <pushnotificationParameters maxPushnotificationPayloadSize=\"4096\"/>\r\n" +
+"          <targets audienceType=\"acsAudience\" filteringSchema=\"\" maxErrorCount=\"3\"\r\n" +
+"                   qualityRequired=\"3\">\r\n" +
+"            <deliveryTarget>\r\n" +
+"              <where filteringResource=\"profile\" filteringSchema=\"\" targetResource=\"profile\"/>\r\n" +
+"            </deliveryTarget>\r\n" +
+"            <seedTarget>\r\n" +
+"              <where filteringResource=\"seedMember\" filteringSchema=\"nms:seedMember\"/>\r\n" +
+"            </seedTarget>\r\n" +
+"          </targets>\r\n" +
+"          <content contextResource=\"profile\" defaultVariant=\"default\" formatSelection=\"preferences\"\r\n" +
+"                   htmlCompression=\"false\" ignoreScripts=\"false\">\r\n" +
+"            <scriptContext name=\"default\"/>\r\n" +
+"            <email autoRefresh=\"false\" syncHtmlToPlainText=\"false\" variant=\"default\"\r\n" +
+"                   variantLabel=\"Default\">\r\n" +
+"              <senderName>\r\n" +
+"                <source><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultSenderName\" contenteditable=\"false\">Default sender name</span>]]></source>\r\n" +
+"              </senderName>\r\n" +
+"              <subject>\r\n" +
+"                <source><![CDATA[Welcome to "+ brandArray[21]+ "]]></source>\r\n" +
+"              </subject>\r\n" +
+"              <html thumbnail=\"\">\r\n" +
+"                <source><![CDATA[<!DOCTYPE html>\r\n" +
+"<html><head><meta name=\"content-version\" content=\"3.2.0\"><span  class=\"nl-dce-fragment\" data-nl-name=\"EmailUrlBase\" >&nbsp;</span><meta name=\"x-apple-disable-message-reformatting\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1.0\"><!--[if gte mso 9]><style acrite-mso-css=\"true\">.image-container div {  display: block;}.structure__table td {  padding: 0;  border: none;}.button-container {  border: none !important;  padding: 0 !important;  line-height: normal !important;}.acr-structure {  margin: 0 !important;}.acr-component {  margin: 0 !important;}.acr-fragment {  margin: 0 !important;}.colspan1, .colspan2, .colspan3, .colspan4, .colspan33, .colspan66 {  box-sizing: border-box !important;}</style><![endif]--></head><body class=\"\"><div class=\"acr-container\"><div class=\"acr-structure\" data-structure-id=\"1-1-column\" data-structure-name=\"richtext.structure_1_1_column\"><table class=\"structure__table\" align=\"center\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"750\"><tbody><tr><th class=\"colspan1\"><div class=\"acr-fragment acr-component\" data-component-id=\"text\" data-contenteditable=\"false\"><div class=\"text-container\" data-contenteditable=\"true\"><p><span class=\"acr-block nl-dce-fragment\" data-nl-label=\"cusWelcomeTemplateBlock"+brandArray[14]+" (cusWelcomeTemplateBlock"+brandArray[14]+")\" data-nl-name=\"cusWelcomeTemplateBlock"+brandArray[14]+"\" data-contenteditable=\"false\">cusWelcomeTemplateBlock"+brandArray[14]+"</span><br></p></div></div></th></tr></tbody></table></div></div></body></html>]]></source>\r\n" +
+"            </html>\r\n" +
+"            </email>\r\n" +
+"          </content>\r\n" +
+"          <output seedInsertMode=\"0\">\r\n" +
+"            <extraction>\r\n" +
+"              <source batchSize=\"200\" format=\"text\" startPath=\"/\" upload=\"true\">\r\n" +
+"                <dataSourceConfig codepage=\"1252\" colType=\"0\" ignoreConfigCheck=\"false\"\r\n" +
+"                                  strictColumnCheck=\"false\" textQualifier=\"none\"\r\n" +
+"                                  timezone=\"_inherit_\" useCR=\"false\" useLF=\"false\"/>\r\n" +
+"                <dataSourceConfigDest codepage=\"1252\" colType=\"0\" ignoreConfigCheck=\"false\"\r\n" +
+"                                      strictColumnCheck=\"false\" textQualifier=\"none\"\r\n" +
+"                                      timezone=\"_inherit_\" useCR=\"false\" useLF=\"false\"/>\r\n" +
+"              </source>\r\n" +
+"              <destination downloadDestFile=\"true\" endRecord=\"0\" progressLines=\"20\"\r\n" +
+"                           putUnmappedCols=\"true\" startPath=\"/\" startRecord=\"0\" transactionLines=\"200\">\r\n" +
+"                <exportFormat allAsString=\"false\" analyze=\"false\" codepage=\"1252\"\r\n" +
+"                              delEscaping=\"duplicateDel\" delimitor=\"delNone\" format=\"text\"\r\n" +
+"                              lineEnd=\"0\" saveTitle=\"true\" separator=\"sepTab\" timezone=\"_inherit_\">\r\n" +
+"                  <dataFormat decimalCount=\"-1\" hideTime=\"false\" orderDate=\"ymd\"\r\n" +
+"                              sepDate=\"/\" sepDateTime=\" \" sepNumber=\".\" sepThousand=\"false\"\r\n" +
+"                              sepTime=\":\" showMs=\"false\" showSec=\"true\" yearShort=\"false\"/>\r\n" +
+"                </exportFormat>\r\n" +
+"              </destination>\r\n" +
+"            </extraction>\r\n" +
+"          </output>\r\n" +
+"          <tracking enabled=\"true\" openEnabled=\"true\">\r\n" +
+"            <clickFormula><![CDATA[<%@ include option='NmsTracking_ClickFormula' %>]]></clickFormula>\r\n" +
+"            <openFormula><![CDATA[<%@ include option='NmsTracking_OpenFormula' %>]]></openFormula>\r\n" +
+"          </tracking>\r\n" +
+"          <notifications pulseAbTestComplete=\"true\"/>\r\n" +
+"          <advancedParameters businessRankingRuleActive=\"false\" codepage=\"65001\"\r\n" +
+"                              emailArchiving=\"false\" forceCodepage=\"false\" showSQL=\"false\"\r\n" +
+"                              verifyMode=\"false\"/>\r\n" +
+"          <properties FCPCount=\"0\" ctrlGrpExclusion=\"0\" deliveryState=\"0\" exclusion=\"0\"\r\n" +
+"                      renderingCount=\"0\" scenarioModTime=\"\" toDeliver=\"0\" trapCount=\"0\"\r\n" +
+"                      url=\"0\"/>\r\n" +
+"          <volume duration=\"1\" rate=\"100\"/>\r\n" +
+"          <offerManagement active=\"0\" batchId=\"\"/>\r\n" +
+"          <validation sandboxMode=\"0\"/>\r\n" +
+"          <dynamicIndicators datasource=\"\" dynamicDelivered=\"0\" dynamicDeliveredRatio=\"0\"\r\n" +
+"                             dynamicError=\"0\" dynamicErrorRatio=\"0\" dynamicRecipientClick=\"0\"\r\n" +
+"                             dynamicRecipientOpen=\"0\" dynamicSent=\"0\"/>\r\n" +
+"          <indicators amount=\"0\" article=\"0\" delivered=\"0\" deliveredWithoutTraps=\"0\"\r\n" +
+"                      dirty=\"0\" disabled=\"0\" error=\"0\" errorPending=\"0\" firstPassSent=\"0\"\r\n" +
+"                      forward=\"0\" invalidDomain=\"0\" lastErrorComputation=\"\" lastTrackingComputation=\"\"\r\n" +
+"                      mailboxFull=\"0\" mirrorPage=\"0\" newQuarantine=\"0\" notConnected=\"0\"\r\n" +
+"                      notSent=\"0\" optOut=\"0\" partsSent=\"0\" personClick=\"0\" processed=\"0\"\r\n" +
+"                      recipientClick=\"0\" recipientOpen=\"0\" refused=\"0\" rejected=\"0\"\r\n" +
+"                      screamers=\"0\" sent=\"0\" totalRecipientClick=\"0\" totalRecipientOpen=\"0\"\r\n" +
+"                      totalWebPage=\"0\" trackingPending=\"0\" transaction=\"0\" unknownUser=\"0\"\r\n" +
+"                      unreachable=\"0\" webPage=\"0\"/>\r\n" +
+"          <triggerMessage eventType=\"\" mcTemplateId=\"0\"/>\r\n" +
+"          <orgUnit _operation=\"none\" name=\"all\"/>\r\n" +
+"          <geoUnit _operation=\"none\" name=\"all\"/>\r\n" +
+"          <campaign _operation=\"none\" name=\""+ brandArray[16]+ "\"/>\r\n" +
+"          <workflow _operation=\"none\" name=\""+ brandArray[17]+ "\"/>\r\n" +
+"          <deliveryProvider _operation=\"none\" name=\"defaultEmailBulk\"/>\r\n" +
+"          <typology _operation=\"none\" name=\""+ brandArray[24]+ "\"/>\r\n" +
+"          <mapping _operation=\"none\" name=\"mapRecipient\"/>\r\n" +
+"          <ownerWorkflow _operation=\"none\" name=\""+ brandArray[17]+ "\"/>\r\n" +
+"          <branding _operation=\"none\" name=\"branding\"/>\r\n" +
+"        </nmsDelivery-ownerWorkflow>\r\n" +
+"      </workflow>\r\n" +
+"    </campaign>\r\n" +
+"  </entities>\r\n" +
+
+// ########################################################
+// ############# WORKFLOW BOILER PLATE ####################
+// ########################################################
+
+
+"  <entities schema=\"xtk:workflow\">\r\n" +
+"    <workflow advanced=\"0\" background=\"xtk:backgrounds/neolane.png\" builtIn=\"0\" errorLimit=\"0\"\r\n" +
+"              exampleFileName=\"\" exampleFileUrl=\"\" handleImportRejects=\"0\" history=\"30\"\r\n" +
+"              importStatus=\"0\" inProcess=\"0\" isMaster=\"0\" isTemplate=\"0\" label=\""+ brandArray[17]+ "\"\r\n" +
+"              name=\""+ brandArray[17]+ "\" onError=\"0\" production=\"0\" resource=\"profile\"\r\n" +
+"              schema=\"nms:recipient\" simulation=\"false\" sourceId=\"0\" thumbnail=\"\"\r\n" +
+"              timezone=\"_inherit_\" type=\"0\">\r\n" +
+"      <activities>\r\n" +
+"        <end collision=\"0\" form=\"end\" img=\"xtk:activities/end.svg\" label=\"End\" mask=\"0\"\r\n" +
+"             name=\"end1\" onError=\"0\" runOnSimulation=\"true\" timezone=\"_inherit_\"\r\n" +
+"             x=\"735\" y=\"115\"/>\r\n" +
+"        <end collision=\"0\" form=\"end\" img=\"xtk:activities/end.svg\" label=\"End 2\"\r\n" +
+"             mask=\"0\" name=\"end2\" onError=\"0\" runOnSimulation=\"true\" timezone=\"_inherit_\"\r\n" +
+"             x=\"1070\" y=\"290\"/>\r\n" +
+"        <fork collision=\"0\" form=\"fork\" img=\"xtk:activities/fork.svg\" label=\"Fork\"\r\n" +
+"              mask=\"0\" name=\"fork1\" onError=\"0\" runOnSimulation=\"true\" timezone=\"_inherit_\"\r\n" +
+"              x=\"195\" y=\"215\">\r\n" +
+"          <transitions>\r\n" +
+"            <transition enabled=\"true\" label=\"\" name=\"transition1\" target=\"incremental2\"\r\n" +
+"                        x=\"0\" y=\"0\"/>\r\n" +
+"            <transition enabled=\"true\" label=\"\" name=\"transition2\" target=\"incremental1\"\r\n" +
+"                        x=\"0\" y=\"0\"/>\r\n" +
+"          </transitions>\r\n" +
+"        </fork>\r\n" +
+"        <schedule collision=\"0\" form=\"schedule\" img=\"xtk:activities/clock.svg\" label=\"// REVIEW SCHEDULE TO FIT PURPOSES // (Default Every 15mn)\"\r\n" +
+"                  mask=\"0\" name=\"schedule1\" onError=\"0\" runOnSimulation=\"true\" timezone=\"_inherit_\"\r\n" +
+"                  x=\"95\" y=\"215\">\r\n" +
+"          <transitions>\r\n" +
+"            <transition enabled=\"true\" name=\"transition\" target=\"fork1\" x=\"0\" y=\"0\"/>\r\n" +
+"          </transitions>\r\n" +
+"          <executionPlanning>\r\n" +
+"            <timeInfo timePeriodicity=\"900\" timeSelection=\"3\"/>\r\n" +
+"            <dayInfo daySelection=\"1\"/>\r\n" +
+"            <validityInfo validity=\"2\"/>\r\n" +
+"          </executionPlanning>\r\n" +
+"        </schedule>\r\n" +
+"        <jstest collision=\"0\" form=\"jstest\" img=\"xtk:activities/condition.svg\" label=\"Any Records (?)\"\r\n" +
+"                mask=\"0\" name=\"test1\" onError=\"0\" runOnSimulation=\"true\" timezone=\"_inherit_\"\r\n" +
+"                x=\"593\" xtk=\"1\" y=\"215\">\r\n" +
+"          <transitions>\r\n" +
+"            <test _finalIndex=\"1\" enabled=\"true\" label=\"Y\" name=\"test\" target=\"deliveryEmail3\"\r\n" +
+"                  x=\"0\" y=\"0\">\r\n" +
+"              <condition><![CDATA[$(vars/@recCount) > 0]]></condition>\r\n" +
+"            </test>\r\n" +
+"            <default enabled=\"true\" label=\"N\" name=\"default\" target=\"end1\" x=\"0\"\r\n" +
+"                     y=\"0\"/>\r\n" +
+"          </transitions>\r\n" +
+"        </jstest>\r\n" +
+"        <incremental collision=\"0\" distinct=\"true\" form=\"incremental\" img=\"nms:activities/incremental.svg\"\r\n" +
+"                     keepAllExtraData=\"false\" label=\"Get Subscribers Profiles (// "+ brandArray[15]+ " //)\"\r\n" +
+"                     lastModifiedPath=\"@created\" mask=\"0\" name=\"incremental2\" noAutoPk=\"false\"\r\n" +
+"                     noAutoPkFilter=\"false\" onError=\"0\" recipientLink=\"subscriber\"\r\n" +
+"                     resource=\"nms:subscriptionRcp:subscriptionRcpDetail\" runOnSimulation=\"true\"\r\n" +
+"                     schema=\"head:subscriptionRcp-subscriptionRcpDetail\" timezone=\"_inherit_\"\r\n" +
+"                     x=\"325\" y=\"115\">\r\n" +
+"          <transitions>\r\n" +
+"            <result enabled=\"true\" name=\"result\" target=\"exclusion1\" x=\"0\" y=\"0\"/>\r\n" +
+"            <noData enabled=\"false\" label=\"No data\" name=\"noData\"/>\r\n" +
+"          </transitions>\r\n" +
+/*"          <select>\r\n" +
+"            <node alias=\"@cusUnileverId\" analyze=\"false\" expr=\"[subscriber/@cusUnileverId]\"\r\n" +
+"                  label=\"Unilever ID\"/>\r\n" +
+"          </select>\r\n" +
+"          <where displayFilter=\"Service is equal to "+ brandArray[14]+ "\">\r\n" +
+"            <condition boolOperator=\"AND\" desc=\"\" expr=\"[service] = \"\r\n" +
+"                       internalId=\"1467482512\"/>\r\n" +
+"          </where>\r\n" +*/
+"        </incremental>\r\n" +
+"        <incremental collision=\"0\" distinct=\"true\" form=\"incremental\" img=\"nms:activities/incremental.svg\"\r\n" +
+"                     keepAllExtraData=\"false\" label=\"Get Delivery Logs (Since last Execution) // "+ brandArray[15]+ " // \"\r\n" +
+"                     lastModifiedPath=\"@eventDate\" mask=\"0\" name=\"incremental1\" noAutoPk=\"false\"\r\n" +
+"                     noAutoPkFilter=\"false\" onError=\"0\" recipientLink=\"profile\" resource=\"nms:broadLogRcp:profileBroadLog\"\r\n" +
+"                     runOnSimulation=\"true\" schema=\"head:broadLogRcp-profileBroadLog\"\r\n" +
+"                     timezone=\"_inherit_\" x=\"325\" y=\"315\">\r\n" +
+"          <transitions>\r\n" +
+"            <result enabled=\"true\" name=\"result\" target=\"exclusion1\" x=\"0\" y=\"0\"/>\r\n" +
+"            <noData enabled=\"false\" label=\"No data\" name=\"noData\"/>\r\n" +
+"          </transitions>\r\n" +
+/*"              <select>\r\n" +
+"                <node alias=\"@cusUnileverId\" analyze=\"false\" expr=\"[profile/@cusUnileverId]\"\r\n" +
+"                      label=\"Unilever ID\"/>\r\n" +
+"              </select>\r\n" +
+"              <where displayFilter=\"Segment code  is equal to  &quot;"+ brandArray[15]+ "&quot;\">\r\n" +
+"              <condition boolOperator=\"AND\" desc=\"\" expr=\"@cusSegmentCode = '"+ brandArray[15].toUpperCase()+ "/>'\"\r\n" +
+/*"            TEST AND UNCOMMENT / REMOVE '/>' FROM LINE ABOVE IF NOT WORKING             internalId=\"1467482513\"/>\r\n" +*/
+//"              </where>\r\n" +
+"        </incremental>\r\n" +
+"        <exclusion collision=\"0\" form=\"exclusion\" img=\"nms:activities/exclusion.svg\"\r\n" +
+"                   label=\"Exclusion (// "+ brandArray[15].toUpperCase()+ " //)\" mainSet=\"incremental2\"\r\n" +
+"                   mask=\"0\" name=\"exclusion1\" onError=\"0\" runOnSimulation=\"true\"\r\n" +
+"                   timezone=\"_inherit_\" useKeyForReconciliation=\"true\" x=\"465\" y=\"215\">\r\n" +
+"          <transitions>\r\n" +
+"            <result code=\""+ brandArray[15].toUpperCase()+ "\" enabled=\"true\" name=\"result\" target=\"test1\"\r\n" +
+"                    x=\"0\" y=\"0\"/>\r\n" +
+"            <remainder enabled=\"false\" label=\"Complement\" name=\"remainder\"/>\r\n" +
+"          </transitions>\r\n" +
+"          <exclusionSet _finalIndex=\"1\" excludeType=\"2\" id=\"1670709554\" name=\"incremental1\">\r\n" +
+"            <joinKeys _finalIndex=\"1\" xpathDst=\"@cusUnileverId\" xpathSrc=\"@cusUnileverId\"/>\r\n" +
+"          </exclusionSet>\r\n" +
+"        </exclusion>\r\n" +
+"        <delivery actionType=\"1\" channel=\"0\" collision=\"0\" delivery-cs=\""+ brandArray[17]+ "\"\r\n" +
+"                  deliverySel=\"3\" form=\"delivery\" img=\"nms:activities/recurrentEmail.svg\"\r\n" +
+"                  label=\""+ brandArray[17]+ "\" mask=\"0\" name=\"deliveryEmail3\" onError=\"0\"\r\n" +
+"                  runOnSimulation=\"true\" targetSel=\"0\" timezone=\"_inherit_\" x=\"830\"\r\n" +
+"                  y=\"270\">\r\n" +
+"          <transitions>\r\n" +
+"            <done enabled=\"false\" name=\"done\"/>\r\n" +
+"            <error enabled=\"false\" label=\"Error\" name=\"error\"/>\r\n" +
+"          </transitions>\r\n" +
+"          <delivery _operation=\"none\" name=\""+ brandArray[18]+ "\"/>\r\n" +
+"        </delivery>\r\n" +
+"      </activities>\r\n" +
+"      <orgUnit _operation=\"none\" name=\"all\"/>\r\n" +
+"      <geoUnit _operation=\"none\" name=\"all\"/>\r\n" +
+"      <campaign _operation=\"none\" name=\""+ brandArray[16]+ "\"/>\r\n" +
+"      <nmsDelivery-ownerWorkflow FCP=\"0\" advanced=\"0\" analysisStep=\"0\" builtIn=\"0\"\r\n" +
+"                                 contentModTime=\"\" contentSource=\"0\" cusDeliveryCode=\"\"\r\n" +
+"                                 cusUtmCampaign=\"\" cusUtmMedium=\"\" cusUtmSource=\"\"\r\n" +
+"                                 executionType=\"1\" forcePreparation=\"0\" hasAttachments=\"0\"\r\n" +
+"                                 hideAudienceStep=\"0\" isMaster=\"1\" isTemplate=\"0\"\r\n" +
+"                                 label=\""+ brandArray[18]+ "\" name=\""+ brandArray[18]+ "\"\r\n" +
+"                                 priority=\"10\" resourceVersion=\"head\" sourceId=\"0\"\r\n" +
+"                                 thumbnail=\"\">\r\n" +
+"        <forecast simuResponseType=\"0\" weight=\"5\" weightType=\"0\">\r\n" +
+"          <weightFormula>$(deliveryWeight)</weightFormula>\r\n" +
+"        </forecast>\r\n" +
+"        <scheduling IPAffinity=\"\" contactDate=\"\" contactDateTimeZone=\"Europe/London\"\r\n" +
+"                    delayExtraction=\"0\" delayed=\"0\" extracted=\"\" extraction=\"\" sendingMode=\"0\"\r\n" +
+"                    validationMode=\"manual\" validityDate=\"\" webResPurged=\"0\" webValidityDate=\"\"/>\r\n" +
+"        <abTesting decisionMode=\"manual\" decisionStrategy=\"openRate\" enabled=\"0\"\r\n" +
+"                   learningPeriod=\"86400\" learningSizeMode=\"manual\" pulseNotificationSent=\"false\"\r\n" +
+"                   testMode=\"subject\" winner=\"\"/>\r\n" +
+"        <execution broadEndDate=\"\" broadStartDate=\"\" firstPassEndDate=\"\" maxRetry=\"5\"\r\n" +
+"                   nextPassDate=\"\" passStartDate=\"\" retry=\"0\" retryPeriod=\"3600\">\r\n" +
+"          <controlGroup type=\"3\">\r\n" +
+"            <where filteringSchema=\"\"/>\r\n" +
+"          </controlGroup>\r\n" +
+"        </execution>\r\n" +
+"        <scenario aggregationPeriod=\"1\" validityDuration=\"432000\" webValidityDuration=\"5184000\"/>\r\n" +
+"        <fcpParameters addFormatInPrefix=\"true\" fcpMailFormat=\"normal\" fcpVariantSel=\"auto\"\r\n" +
+"                       labelPrefix=\"Proof\" useSpecificOutputFile=\"false\"/>\r\n" +
+"        <mailParameters mirrorPagePolicy=\"default\" needMirrorPage=\"0\">\r\n" +
+"          <senderAddress><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultSenderAddress\" contenteditable=\"false\">Email address of default sender</span>]]></senderAddress>\r\n" +
+"          <replyAddress><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultReplyAddress\" contenteditable=\"false\">Default reply-to email address</span>]]></replyAddress>\r\n" +
+"          <replyName><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultReplyName\" contenteditable=\"false\">Name of default reply-to email address</span>]]></replyName>\r\n" +
+"          <errorAddress><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultErrorAddress\" contenteditable=\"false\">Default error email address</span>]]></errorAddress>\r\n" +
+"        </mailParameters>\r\n" +
+"        <smsParameters maxSmsPerMessage=\"1\" mobileMsgType=\"0\" smsAppType=\"2\" smsMode=\"-1\"\r\n" +
+"                       smsPriority=\"0\"/>\r\n" +
+"        <pushnotificationParameters maxPushnotificationPayloadSize=\"4096\"/>\r\n" +
+"        <targets audienceType=\"acsAudience\" filteringSchema=\"\" maxErrorCount=\"3\"\r\n" +
+"                 qualityRequired=\"3\">\r\n" +
+"          <deliveryTarget>\r\n" +
+"            <where filteringResource=\"profile\" filteringSchema=\"\" targetResource=\"profile\"/>\r\n" +
+"          </deliveryTarget>\r\n" +
+"          <seedTarget>\r\n" +
+"            <where filteringResource=\"seedMember\" filteringSchema=\"nms:seedMember\"/>\r\n" +
+"          </seedTarget>\r\n" +
+"        </targets>\r\n" +
+"        <content contextResource=\"profile\" defaultVariant=\"default\" formatSelection=\"preferences\"\r\n" +
+"                 htmlCompression=\"false\" ignoreScripts=\"false\">\r\n" +
+"          <scriptContext name=\"default\"/>\r\n" +
+"          <email autoRefresh=\"false\" syncHtmlToPlainText=\"false\" variant=\"default\"\r\n" +
+"                 variantLabel=\"Default\">\r\n" +
+"            <senderName>\r\n" +
+"              <source><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultSenderName\" contenteditable=\"false\">Default sender name</span>]]></source>\r\n" +
+"            </senderName>\r\n" +
+"            <subject>\r\n" +
+"              <source><![CDATA[Welcome to "+ brandArray[21]+ "]]></source>\r\n" +
+"            </subject>\r\n" +
+"            <html thumbnail=\"\">\r\n" +
+"              <source><![CDATA[<!DOCTYPE html>\r\n" +
+"<html><head><meta name=\"content-version\" content=\"3.2.0\"><span  class=\"nl-dce-fragment\" data-nl-name=\"EmailUrlBase\" >&nbsp;</span><meta name=\"x-apple-disable-message-reformatting\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1.0\"><!--[if gte mso 9]><style acrite-mso-css=\"true\">.image-container div {  display: block;}.structure__table td {  padding: 0;  border: none;}.button-container {  border: none !important;  padding: 0 !important;  line-height: normal !important;}.acr-structure {  margin: 0 !important;}.acr-component {  margin: 0 !important;}.acr-fragment {  margin: 0 !important;}.colspan1, .colspan2, .colspan3, .colspan4, .colspan33, .colspan66 {  box-sizing: border-box !important;}</style><![endif]--></head><body class=\"\"><div class=\"acr-container\"><div class=\"acr-structure\" data-structure-id=\"1-1-column\" data-structure-name=\"richtext.structure_1_1_column\"><table class=\"structure__table\" align=\"center\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"750\"><tbody><tr><th class=\"colspan1\"><div class=\"acr-fragment acr-component\" data-component-id=\"text\" data-contenteditable=\"false\"><div class=\"text-container\" data-contenteditable=\"true\"><p><span class=\"acr-block nl-dce-fragment\" data-nl-label=\"cusWelcomeTemplateBlock"+brandArray[14]+" (cusWelcomeTemplateBlock"+brandArray[14]+")\" data-nl-name=\"cusWelcomeTemplateBlock"+brandArray[14]+"\" data-contenteditable=\"false\">cusWelcomeTemplateBlock"+brandArray[14]+"</span><br></p></div></div></th></tr></tbody></table></div></div></body></html>]]></source>\r\n" +
+"            </html>\r\n" +
+"          </email>\r\n" +
+"        </content>\r\n" +
+"        <output seedInsertMode=\"0\">\r\n" +
+"          <extraction>\r\n" +
+"            <source batchSize=\"200\" format=\"text\" startPath=\"/\" upload=\"true\">\r\n" +
+"              <dataSourceConfig codepage=\"1252\" colType=\"0\" ignoreConfigCheck=\"false\"\r\n" +
+"                                strictColumnCheck=\"false\" textQualifier=\"none\" timezone=\"_inherit_\"\r\n" +
+"                                useCR=\"false\" useLF=\"false\"/>\r\n" +
+"              <dataSourceConfigDest codepage=\"1252\" colType=\"0\" ignoreConfigCheck=\"false\"\r\n" +
+"                                    strictColumnCheck=\"false\" textQualifier=\"none\"\r\n" +
+"                                    timezone=\"_inherit_\" useCR=\"false\" useLF=\"false\"/>\r\n" +
+"            </source>\r\n" +
+"            <destination downloadDestFile=\"true\" endRecord=\"0\" progressLines=\"20\"\r\n" +
+"                         putUnmappedCols=\"true\" startPath=\"/\" startRecord=\"0\" transactionLines=\"200\">\r\n" +
+"              <exportFormat allAsString=\"false\" analyze=\"false\" codepage=\"1252\" delEscaping=\"duplicateDel\"\r\n" +
+"                            delimitor=\"delNone\" format=\"text\" lineEnd=\"0\" saveTitle=\"true\"\r\n" +
+"                            separator=\"sepTab\" timezone=\"_inherit_\">\r\n" +
+"                <dataFormat decimalCount=\"-1\" hideTime=\"false\" orderDate=\"ymd\" sepDate=\"/\"\r\n" +
+"                            sepDateTime=\" \" sepNumber=\".\" sepThousand=\"false\" sepTime=\":\"\r\n" +
+"                            showMs=\"false\" showSec=\"true\" yearShort=\"false\"/>\r\n" +
+"              </exportFormat>\r\n" +
+"            </destination>\r\n" +
+"          </extraction>\r\n" +
+"        </output>\r\n" +
+"        <tracking enabled=\"true\" openEnabled=\"true\">\r\n" +
+"          <clickFormula><![CDATA[<%@ include option='NmsTracking_ClickFormula' %>]]></clickFormula>\r\n" +
+"          <openFormula><![CDATA[<%@ include option='NmsTracking_OpenFormula' %>]]></openFormula>\r\n" +
+"        </tracking>\r\n" +
+"        <notifications pulseAbTestComplete=\"true\"/>\r\n" +
+"        <advancedParameters businessRankingRuleActive=\"false\" codepage=\"65001\" emailArchiving=\"false\"\r\n" +
+"                            forceCodepage=\"false\" showSQL=\"false\" verifyMode=\"false\"/>\r\n" +
+"        <properties FCPCount=\"0\" ctrlGrpExclusion=\"0\" deliveryState=\"0\" exclusion=\"0\"\r\n" +
+"                    renderingCount=\"0\" scenarioModTime=\"\" toDeliver=\"0\" trapCount=\"0\"\r\n" +
+"                    url=\"0\"/>\r\n" +
+"        <volume duration=\"1\" rate=\"100\"/>\r\n" +
+"        <offerManagement active=\"0\" batchId=\"\"/>\r\n" +
+"        <validation sandboxMode=\"0\"/>\r\n" +
+"        <dynamicIndicators datasource=\"\" dynamicDelivered=\"0\" dynamicDeliveredRatio=\"0\"\r\n" +
+"                           dynamicError=\"0\" dynamicErrorRatio=\"0\" dynamicRecipientClick=\"0\"\r\n" +
+"                           dynamicRecipientOpen=\"0\" dynamicSent=\"0\"/>\r\n" +
+"        <indicators amount=\"0\" article=\"0\" delivered=\"0\" deliveredWithoutTraps=\"0\"\r\n" +
+"                    dirty=\"0\" disabled=\"0\" error=\"0\" errorPending=\"0\" firstPassSent=\"0\"\r\n" +
+"                    forward=\"0\" invalidDomain=\"0\" lastErrorComputation=\"\" lastTrackingComputation=\"\"\r\n" +
+"                    mailboxFull=\"0\" mirrorPage=\"0\" newQuarantine=\"0\" notConnected=\"0\"\r\n" +
+"                    notSent=\"0\" optOut=\"0\" partsSent=\"0\" personClick=\"0\" processed=\"0\"\r\n" +
+"                    recipientClick=\"0\" recipientOpen=\"0\" refused=\"0\" rejected=\"0\"\r\n" +
+"                    screamers=\"0\" sent=\"0\" totalRecipientClick=\"0\" totalRecipientOpen=\"0\"\r\n" +
+"                    totalWebPage=\"0\" trackingPending=\"0\" transaction=\"0\" unknownUser=\"0\"\r\n" +
+"                    unreachable=\"0\" webPage=\"0\"/>\r\n" +
+"        <triggerMessage eventType=\"\" mcTemplateId=\"0\"/>\r\n" +
+"        <orgUnit _operation=\"none\" name=\"all\"/>\r\n" +
+"        <geoUnit _operation=\"none\" name=\"all\"/>\r\n" +
+"        <campaign _operation=\"none\" name=\""+ brandArray[16]+ "\"/>\r\n" +
+"        <workflow _operation=\"none\" name=\""+ brandArray[17]+ "\"/>\r\n" +
+"        <deliveryProvider _operation=\"none\" name=\"defaultEmailBulk\"/>\r\n" +
+"        <typology _operation=\"none\" name=\""+ brandArray[24]+ "\"/>\r\n" +
+"        <mapping _operation=\"none\" name=\"mapRecipient\"/>\r\n" +
+"        <ownerWorkflow _operation=\"none\" name=\""+ brandArray[17]+ "\"/>\r\n" +
+"        <branding _operation=\"none\" name=\"branding\"/>\r\n" +
+"      </nmsDelivery-ownerWorkflow>\r\n" +
+"    </workflow>\r\n" +
+"  </entities>\r\n" +
+
+// ########################################################
+// ############# DELIVERY BOILER PLATE ####################
+// ########################################################
+
+
+"  <entities schema=\"nms:delivery\">\r\n" +
+"    <delivery FCP=\"0\" advanced=\"0\" analysisStep=\"0\" builtIn=\"0\" contentModTime=\"\"\r\n" +
+"              contentSource=\"0\" cusDeliveryCode=\"\" cusUtmCampaign=\"\" cusUtmMedium=\"\"\r\n" +
+"              cusUtmSource=\"\" executionType=\"1\" forcePreparation=\"0\" hasAttachments=\"0\"\r\n" +
+"              hideAudienceStep=\"0\" isMaster=\"1\" isTemplate=\"0\" label=\""+ brandArray[18]+ "\"\r\n" +
+"              name=\""+ brandArray[18]+ "\" priority=\"10\" resourceVersion=\"head\" sourceId=\"0\"\r\n" +
+"              thumbnail=\"\">\r\n" +
+"      <forecast simuResponseType=\"0\" weight=\"5\" weightType=\"0\">\r\n" +
+"        <weightFormula>$(deliveryWeight)</weightFormula>\r\n" +
+"      </forecast>\r\n" +
+"      <scheduling IPAffinity=\"\" contactDate=\"\" contactDateTimeZone=\"Europe/London\"\r\n" +
+"                  delayExtraction=\"0\" delayed=\"0\" extracted=\"\" extraction=\"\" sendingMode=\"0\"\r\n" +
+"                  validationMode=\"manual\" validityDate=\"\" webResPurged=\"0\" webValidityDate=\"\"></scheduling>\r\n" +
+"      <abTesting decisionMode=\"manual\" decisionStrategy=\"openRate\" enabled=\"0\" learningPeriod=\"86400\"\r\n" +
+"                 learningSizeMode=\"manual\" pulseNotificationSent=\"false\" testMode=\"subject\"\r\n" +
+"                 winner=\"\"></abTesting>\r\n" +
+"      <execution broadEndDate=\"\" broadStartDate=\"\" firstPassEndDate=\"\" maxRetry=\"5\"\r\n" +
+"                 nextPassDate=\"\" passStartDate=\"\" retry=\"0\" retryPeriod=\"3600\">\r\n" +
+"        <controlGroup type=\"3\">\r\n" +
+"          <where filteringSchema=\"\"></where>\r\n" +
+"        </controlGroup>\r\n" +
+"      </execution>\r\n" +
+"      <scenario aggregationPeriod=\"1\" validityDuration=\"432000\" webValidityDuration=\"5184000\"/>\r\n" +
+"      <fcpParameters addFormatInPrefix=\"true\" fcpMailFormat=\"normal\" fcpVariantSel=\"auto\"\r\n" +
+"                     labelPrefix=\"Proof\" useSpecificOutputFile=\"false\"/>\r\n" +
+"      <mailParameters mirrorPagePolicy=\"default\" needMirrorPage=\"0\">\r\n" +
+"        <senderAddress><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultSenderAddress\" contenteditable=\"false\">Email address of default sender</span>]]></senderAddress>\r\n" +
+"        <replyAddress><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultReplyAddress\" contenteditable=\"false\">Default reply-to email address</span>]]></replyAddress>\r\n" +
+"        <replyName><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultReplyName\" contenteditable=\"false\">Name of default reply-to email address</span>]]></replyName>\r\n" +
+"        <errorAddress><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultErrorAddress\" contenteditable=\"false\">Default error email address</span>]]></errorAddress>\r\n" +
+"      </mailParameters>\r\n" +
+"      <smsParameters maxSmsPerMessage=\"1\" mobileMsgType=\"0\" smsAppType=\"2\" smsMode=\"-1\"\r\n" +
+"                     smsPriority=\"0\"/>\r\n" +
+"      <pushnotificationParameters maxPushnotificationPayloadSize=\"4096\"/>\r\n" +
+"      <targets audienceType=\"acsAudience\" filteringSchema=\"\" maxErrorCount=\"3\" qualityRequired=\"3\">\r\n" +
+"        <deliveryTarget>\r\n" +
+"          <where filteringResource=\"profile\" filteringSchema=\"\" targetResource=\"profile\"></where>\r\n" +
+"        </deliveryTarget>\r\n" +
+"        <seedTarget>\r\n" +
+"          <where filteringResource=\"seedMember\" filteringSchema=\"nms:seedMember\"></where>\r\n" +
+"        </seedTarget>\r\n" +
+"      </targets>\r\n" +
+"      <content contextResource=\"profile\" defaultVariant=\"default\" formatSelection=\"preferences\"\r\n" +
+"               htmlCompression=\"false\" ignoreScripts=\"false\">\r\n" +
+"        <scriptContext name=\"default\"/>\r\n" +
+"        <email autoRefresh=\"false\" syncHtmlToPlainText=\"false\" variant=\"default\"\r\n" +
+"               variantLabel=\"Default\">\r\n" +
+"          <senderName>\r\n" +
+"            <source><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultSenderName\" contenteditable=\"false\">Default sender name</span>]]></source>\r\n" +
+"          </senderName>\r\n" +
+"          <subject>\r\n" +
+"            <source><![CDATA[Welcome to "+ brandArray[21]+ "]]></source>\r\n" +
+"          </subject>\r\n" +
+"          <html thumbnail=\"\">\r\n" +
+"            <source><![CDATA[<!DOCTYPE html>\r\n" +
+"<html><head><meta name=\"content-version\" content=\"3.2.0\"><span  class=\"nl-dce-fragment\" data-nl-name=\"EmailUrlBase\" >&nbsp;</span><meta name=\"x-apple-disable-message-reformatting\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1.0\"><!--[if gte mso 9]><style acrite-mso-css=\"true\">.image-container div {  display: block;}.structure__table td {  padding: 0;  border: none;}.button-container {  border: none !important;  padding: 0 !important;  line-height: normal !important;}.acr-structure {  margin: 0 !important;}.acr-component {  margin: 0 !important;}.acr-fragment {  margin: 0 !important;}.colspan1, .colspan2, .colspan3, .colspan4, .colspan33, .colspan66 {  box-sizing: border-box !important;}</style><![endif]--></head><body class=\"\"><div class=\"acr-container\"><div class=\"acr-structure\" data-structure-id=\"1-1-column\" data-structure-name=\"richtext.structure_1_1_column\"><table class=\"structure__table\" align=\"center\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"750\"><tbody><tr><th class=\"colspan1\"><div class=\"acr-fragment acr-component\" data-component-id=\"text\" data-contenteditable=\"false\"><div class=\"text-container\" data-contenteditable=\"true\"><p><span class=\"acr-block nl-dce-fragment\" data-nl-label=\""+brandArray[14]+" ("+brandArray[14]+")\" data-nl-name=\"cusWelcomeTemplateBlock"+brandArray[14]+"\" data-contenteditable=\"false\">cusWelcomeTemplateBlock"+brandArray[14]+"</span><br></p></div></div></th></tr></tbody></table></div></div></body></html>]]></source>\r\n" +
+"          </html>\r\n" +
+"        </email>\r\n" +
+"      </content>\r\n" +
+"      <output seedInsertMode=\"0\">\r\n" +
+"        <extraction>\r\n" +
+"          <source batchSize=\"200\" format=\"text\" startPath=\"/\" upload=\"true\">\r\n" +
+"            <dataSourceConfig codepage=\"1252\" colType=\"0\" ignoreConfigCheck=\"false\"\r\n" +
+"                              strictColumnCheck=\"false\" textQualifier=\"none\" timezone=\"_inherit_\"\r\n" +
+"                              useCR=\"false\" useLF=\"false\"/>\r\n" +
+"            <dataSourceConfigDest codepage=\"1252\" colType=\"0\" ignoreConfigCheck=\"false\"\r\n" +
+"                                  strictColumnCheck=\"false\" textQualifier=\"none\"\r\n" +
+"                                  timezone=\"_inherit_\" useCR=\"false\" useLF=\"false\"/>\r\n" +
+"          </source>\r\n" +
+"          <destination downloadDestFile=\"true\" endRecord=\"0\" progressLines=\"20\" putUnmappedCols=\"true\"\r\n" +
+"                       startPath=\"/\" startRecord=\"0\" transactionLines=\"200\">\r\n" +
+"            <exportFormat allAsString=\"false\" analyze=\"false\" codepage=\"1252\" delEscaping=\"duplicateDel\"\r\n" +
+"                          delimitor=\"delNone\" format=\"text\" lineEnd=\"0\" saveTitle=\"true\"\r\n" +
+"                          separator=\"sepTab\" timezone=\"_inherit_\">\r\n" +
+"              <dataFormat decimalCount=\"-1\" hideTime=\"false\" orderDate=\"ymd\" sepDate=\"/\"\r\n" +
+"                          sepDateTime=\" \" sepNumber=\".\" sepThousand=\"false\" sepTime=\":\"\r\n" +
+"                          showMs=\"false\" showSec=\"true\" yearShort=\"false\"/>\r\n" +
+"            </exportFormat>\r\n" +
+"          </destination>\r\n" +
+"        </extraction>\r\n" +
+"      </output>\r\n" +
+"      <tracking enabled=\"true\" openEnabled=\"true\">\r\n" +
+"        <clickFormula><![CDATA[<%@ include option='NmsTracking_ClickFormula' %>]]></clickFormula>\r\n" +
+"        <openFormula><![CDATA[<%@ include option='NmsTracking_OpenFormula' %>]]></openFormula>\r\n" +
+"      </tracking>\r\n" +
+"      <notifications pulseAbTestComplete=\"true\"/>\r\n" +
+"      <advancedParameters businessRankingRuleActive=\"false\" codepage=\"65001\" emailArchiving=\"false\"\r\n" +
+"                          forceCodepage=\"false\" showSQL=\"false\" verifyMode=\"false\"/>\r\n" +
+"      <properties FCPCount=\"0\" ctrlGrpExclusion=\"0\" deliveryState=\"0\" exclusion=\"0\"\r\n" +
+"                  renderingCount=\"0\" scenarioModTime=\"\" toDeliver=\"0\" trapCount=\"0\"\r\n" +
+"                  url=\"0\"></properties>\r\n" +
+"      <volume duration=\"1\" rate=\"100\"/>\r\n" +
+"      <offerManagement active=\"0\" batchId=\"\"/>\r\n" +
+"      <validation sandboxMode=\"0\"/>\r\n" +
+"      <dynamicIndicators datasource=\"\" dynamicDelivered=\"0\" dynamicDeliveredRatio=\"0\"\r\n" +
+"                         dynamicError=\"0\" dynamicErrorRatio=\"0\" dynamicRecipientClick=\"0\"\r\n" +
+"                         dynamicRecipientOpen=\"0\" dynamicSent=\"0\"/>\r\n" +
+"      <indicators amount=\"0\" article=\"0\" delivered=\"0\" deliveredWithoutTraps=\"0\"\r\n" +
+"                  dirty=\"0\" disabled=\"0\" error=\"0\" errorPending=\"0\" firstPassSent=\"0\"\r\n" +
+"                  forward=\"0\" invalidDomain=\"0\" lastErrorComputation=\"\" lastTrackingComputation=\"\"\r\n" +
+"                  mailboxFull=\"0\" mirrorPage=\"0\" newQuarantine=\"0\" notConnected=\"0\"\r\n" +
+"                  notSent=\"0\" optOut=\"0\" partsSent=\"0\" personClick=\"0\" processed=\"0\"\r\n" +
+"                  recipientClick=\"0\" recipientOpen=\"0\" refused=\"0\" rejected=\"0\" screamers=\"0\"\r\n" +
+"                  sent=\"0\" totalRecipientClick=\"0\" totalRecipientOpen=\"0\" totalWebPage=\"0\"\r\n" +
+"                  trackingPending=\"0\" transaction=\"0\" unknownUser=\"0\" unreachable=\"0\"\r\n" +
+"                  webPage=\"0\"/>\r\n" +
+"      <triggerMessage eventType=\"\" mcTemplateId=\"0\"/>\r\n" +
+"      <orgUnit _operation=\"none\" name=\"all\"/>\r\n" +
+"      <geoUnit _operation=\"none\" name=\"all\"/>\r\n" +
+"      <campaign _operation=\"none\" name=\""+ brandArray[16]+ "\"/>\r\n" +
+"      <workflow name=\""+ brandArray[17]+ "\"/>\r\n" +
+"      <deliveryProvider _operation=\"none\" name=\"defaultEmailBulk\"/>\r\n" +
+"      <typology _operation=\"none\" name=\""+ brandArray[24]+ "\"/>\r\n" +
+"      <mapping _operation=\"none\" name=\"mapRecipient\"/>\r\n" +
+"      <ownerWorkflow name=\""+ brandArray[17]+ "\"/>\r\n" +
+"      <branding _operation=\"none\" name=\"branding\"/>\r\n" +
+"    </delivery>\r\n" +
+"  </entities>\r\n";
+
+   welcomeXmlString = welcomeXmlString + sb;
+
+}
+
+
+// Function to return the final Welcomepackage XML String
+function returnWelcomeXml(){
+
+    welcomeXmlString = welcomeXmlString + "</package>\r\n";
+      return welcomeXmlString;
+   }
+
+// Function to return the final transactional email package
+function returnTransactionalEmailXml(){
+  transactionalEmail = transactionalEmail + "</package>\r\n";
+
+  return transactionalEmail;
+}
+
+
+// Function to return the final transactional email package
+function returnTransactionalSmsXml(){
+  transactionalSms = transactionalSms + "</package>\r\n";
+
+  return transactionalSms;
+}
+
+
+// #################### OTP STUBS #######################################
+function returnOtpSmsXml(){
+  otpSMS = otpSMS + "</package>\r\n";
+
+  return otpSMS;
+}
+
+function returnOtpEmlXml(){
+  otpEML = otpEML + "</package>\r\n";
+
+  return otpEML;
+}
+// ####################^^ OTP STUBS ^^####################################
+
+
+// EVT"+ brandArray[19] + "_DEFAULT_EML_PR_ECOM
+// STUB FOR TRANSACTIONAL EMAIL
+function buildTransactionalEmailXml(){
+
+
+for(i=0 ; i< distinctMarkets.length; i++){
+
+      var sb = " <entities schema=\"xtk:cusResource\">\r\n" +
+    "    <cusResource activationStatus=\"1\" extendedResource=\"\" isHidden=\"0\" isSnapshot=\"0\"\r\n" +
+    "                 label=\"EVT"+ distinctMarkets[i] +"_DEFAULT_EML_PR_ECOM\" messageType=\"0\" name=\"EVT"+ distinctMarkets[i] +"_DEFAULT_EML_PR_ECOM\"\r\n" +
+    "                 publicationDate=\"2020-02-04 12:55:31.000Z\" targetSchema=\"nms:rtEvent\"\r\n" +
+    "                 tempLogicalStatus=\"0\" type=\"2\">\r\n" +
+    "      <eventParameters addFollowupTemplate=\"false\"/>\r\n" +
+    "      <schema autopk=\"int64\">\r\n" +
+    "        <field category=\"99_none\" defaultValueType=\"none\" label=\"subjectLine\" len=\"127\"\r\n" +
+    "               name=\"subjectLine\" sensitivity=\"true\" type=\"string\"></field>\r\n" +
+    "        <field category=\"99_none\" defaultValueType=\"none\" label=\"name\" len=\"127\"\r\n" +
+    "               name=\"name\" sensitivity=\"true\" type=\"string\"></field>\r\n" +
+    "        <field category=\"99_none\" defaultValueType=\"none\" label=\"emailBody\" len=\"127\"\r\n" +
+    "               name=\"emailBody\" sensitivity=\"true\" type=\"string\"></field>\r\n" +
+    "        <field category=\"99_none\" defaultValueType=\"none\" label=\"contactGivenname\"\r\n" +
+    "               len=\"127\" name=\"contactGivenname\" sensitivity=\"true\" type=\"string\"></field>\r\n" +
+    "        <field category=\"99_none\" defaultValueType=\"none\" label=\"campaignName\" len=\"127\"\r\n" +
+    "               name=\"campaignName\" sensitivity=\"true\" type=\"string\"></field>\r\n" +
+    "        <field category=\"99_none\" defaultValueType=\"none\" label=\"brandName\" len=\"127\"\r\n" +
+    "               name=\"brandName\" sensitivity=\"true\" type=\"string\"></field>\r\n" +
+    "        <field category=\"99_none\" defaultValueType=\"none\" label=\"brandCode\" len=\"127\"\r\n" +
+    "               name=\"brandCode\" sensitivity=\"true\" type=\"string\"></field>\r\n" +
+    "      </schema>\r\n" +
+    "      <screens>\r\n" +
+    "        <detail layout=\"col1\"/>\r\n" +
+    "      </screens>\r\n" +
+    "    </cusResource>\r\n" +
+    "  </entities>\r\n" +
+    "  <entities schema=\"nms:delivery\">\r\n" +
+    "    <delivery FCP=\"0\" advanced=\"0\" analysisStep=\"0\" builtIn=\"0\" contentModTime=\"\"\r\n" +
+    "              contentSource=\"0\" cusDeliveryCode=\"\" cusUtmCampaign=\"\" cusUtmMedium=\"\"\r\n" +
+    "              cusUtmSource=\"\" executionType=\"2\" forcePreparation=\"0\" hasAttachments=\"0\"\r\n" +
+    "              hideAudienceStep=\"0\" isMaster=\"0\" isTemplate=\"1\" label=\"EVT"+ distinctMarkets[i] +"_DEFAULT_EML_PR_ECOM\"\r\n" +
+    "              name=\"RTEVT"+ distinctMarkets[i] +"_DEFAULT_EML_PR_ECOM\" priority=\"10\" resourceVersion=\"head\"\r\n" +
+    "              sourceId=\"0\" thumbnail=\"\">\r\n" +
+    "      <forecast simuResponseType=\"0\" weight=\"5\" weightType=\"0\">\r\n" +
+    "        <weightFormula>$(deliveryWeight)</weightFormula>\r\n" +
+    "      </forecast>\r\n" +
+    "      <scheduling IPAffinity=\"\" contactDate=\"2020-03-17 11:15:06.000Z\" contactDateTimeZone=\"Europe/London\"\r\n" +
+    "                  delayExtraction=\"0\" delayed=\"0\" extracted=\"\" extraction=\"\" sendingMode=\"0\"\r\n" +
+    "                  validationMode=\"manual\" validityDate=\"\" webResPurged=\"0\" webValidityDate=\"\"></scheduling>\r\n" +
+    "      <abTesting decisionMode=\"manual\" decisionStrategy=\"openRate\" enabled=\"0\" learningPeriod=\"86400\"\r\n" +
+    "                 learningSizeMode=\"manual\" pulseNotificationSent=\"false\" testMode=\"subject\"\r\n" +
+    "                 winner=\"\"></abTesting>\r\n" +
+    "      <execution broadEndDate=\"\" broadStartDate=\"\" firstPassEndDate=\"\" maxRetry=\"5\"\r\n" +
+    "                 nextPassDate=\"\" passStartDate=\"\" retry=\"0\" retryPeriod=\"3600\">\r\n" +
+    "        <controlGroup type=\"3\">\r\n" +
+    "          <where filteringSchema=\"\"></where>\r\n" +
+    "        </controlGroup>\r\n" +
+    "      </execution>\r\n" +
+    "      <scenario aggregationPeriod=\"0\" setDirectDates=\"false\" useLabelScript=\"true\"\r\n" +
+    "                validityDuration=\"3110400\" webValidityDuration=\"5184000\">\r\n" +
+    "        <labelScript>&lt;%= formatDate(getCurrentDate(), \"%4Y/%2M\") %&gt; &lt;%= delivery.label %&gt;</labelScript>\r\n" +
+    "      </scenario>\r\n" +
+    "      <fcpParameters addFormatInPrefix=\"true\" fcpMailFormat=\"normal\" fcpVariantSel=\"auto\"\r\n" +
+    "                     labelPrefix=\"Proof\" useSpecificOutputFile=\"false\"/>\r\n" +
+    "      <mailParameters mirrorPagePolicy=\"default\" needMirrorPage=\"0\">\r\n" +
+    "        <senderAddress><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultSenderAddress\" contenteditable=\"false\">Email address of default sender</span>]]></senderAddress>\r\n" +
+    "        <replyAddress><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultReplyAddress\" contenteditable=\"false\">Default reply-to email address</span>]]></replyAddress>\r\n" +
+    "        <replyName><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultReplyName\" contenteditable=\"false\">Name of default reply-to email address</span>]]></replyName>\r\n" +
+    "        <errorAddress><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultErrorAddress\" contenteditable=\"false\">Default error email address</span>]]></errorAddress>\r\n" +
+    "      </mailParameters>\r\n" +
+    "      <smsParameters maxSmsPerMessage=\"1\" mobileMsgType=\"0\" smsAppType=\"2\" smsMode=\"-1\"\r\n" +
+    "                     smsPriority=\"0\"/>\r\n" +
+    "      <pushnotificationParameters maxPushnotificationPayloadSize=\"4096\"/>\r\n" +
+    "      <targets audienceType=\"acsAudience\" emptyReprForMissingOffer=\"true\" filteringSchema=\"\"\r\n" +
+    "               maxErrorCount=\"3\" qualityRequired=\"3\">\r\n" +
+    "        <deliveryTarget>\r\n" +
+    "          <where filteringResource=\"rtEvent\" filteringSchema=\"\" targetResource=\"rtEvent\"></where>\r\n" +
+    "        </deliveryTarget>\r\n" +
+    "        <seedTarget>\r\n" +
+    "          <where filteringResource=\"seedMember\" filteringSchema=\"nms:seedMember\">\r\n" +
+    "            <condition boolOperator=\"AND\" desc=\"Profiles linked to event 'EVT"+ distinctMarkets[i] +"_DEFAULT_EML_PR_ECOM'\"\r\n" +
+    "                       expr=\"[nms_rtEvent/@eventType] = 'EVT"+ distinctMarkets[i] +"_DEFAULT_EML_PR_ECOM'\"></condition>\r\n" +
+    "          </where>\r\n" +
+    "        </seedTarget>\r\n" +
+    "      </targets>\r\n" +
+    "      <content contextResource=\"EVT"+ distinctMarkets[i] +"_DEFAULT_EML_PR_ECOM\" defaultVariant=\"default\"\r\n" +
+    "               formatSelection=\"preferences\" htmlCompression=\"false\" ignoreScripts=\"false\">\r\n" +
+    "        <email autoRefresh=\"false\" syncHtmlToPlainText=\"false\" variant=\"default\"\r\n" +
+    "               variantLabel=\"Default\">\r\n" +
+    "          <senderName>\r\n" +
+    "            <source><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultSenderName\" contenteditable=\"false\">Default sender name</span>]]></source>\r\n" +
+    "          </senderName>\r\n" +
+    "          <subject>\r\n" +
+    "            <source><![CDATA[<span class=\"acr-field nl-dce-field\" data-nl-expr=\"/context/rtEvent/ctx/subjectLine\" data-nl-type=\"string\" contenteditable=\"false\">subjectLine (subjectLine)</span>]]></source>\r\n" +
+    "          </subject>\r\n" +
+    "          <html thumbnail=\"http://unilever-mkt-prod3-res.adobe-campaign.com/res/thumbnails/unileve_mkt_prod3/cd4f34b7-740b-49a4-804d-6663e9a45e44.jpg\">\r\n" +
+    "            <source><![CDATA[<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional //EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\r\n" +
+    "<html><head><title>Adobe Campaign newsletter template</title><span  class=\"nl-dce-fragment\" data-nl-name=\"EmailUrlBase\" >&nbsp;</span><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"><meta content=\"width=device-width\"><style type=\"text/css\">\r\n" +
+    "      body, td { font-family: 'Helvetica Neue', Arial, Helvetica, Geneva, sans-serif; font-size:14px; }\r\n" +
+    "      body { background-color: #F5F5F5; margin: 0; padding: 0; -webkit-text-size-adjust:none; -ms-text-size-adjust:none; }\r\n" +
+    "      h2{ padding-top:12px; /* will not work in Outlook 2007+ */color:#0E7693; font-size:22px; }\r\n" +
+    "      @media only screen and (max-width: 480px) {\r\n" +
+    "        table[class=w275], td[class=w275], img[class=w275] { width:135px !important; }\r\n" +
+    "        table[class=w30], td[class=w30], img[class=w30] { width:10px !important; }\r\n" +
+    "        table[class=w580], td[class=w580], img[class=w580] { width:280px !important; }\r\n" +
+    "        table[class=w640], td[class=w640], img[class=w640] { width:300px !important; }\r\n" +
+    "        img{ height:auto;}\r\n" +
+    "        /*unreadable, so skip to 3 lines */\r\n" +
+    "        table[class=w180], td[class=w180], img[class=w180] {\r\n" +
+    "          width:280px !important;\r\n" +
+    "          display:block;\r\n" +
+    "        }\r\n" +
+    "        td[class=w20]{ display:none; }\r\n" +
+    "      }\r\n" +
+    "    </style><!--[if gte mso 9]><style acrite-mso-css=\"true\">.image-container div {  display: block;}.structure__table td {  padding: 0;  border: none;}.button-container {  border: none !important;  padding: 0 !important;  line-height: normal !important;}</style><![endif]--></head><body style=\"margin:0px;padding:0px;-webkit-text-size-adjust:none;\" class=\"is-html-mode\" data-contenteditable=\"true\"><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"background-color:rgb(42, 55, 78);\"><tbody><tr><td align=\"center\" bgcolor=\"#F5F5F5\"><table cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tbody><tr><td class=\"w640\" width=\"640\" height=\"10\"></td></tr><tr><td align=\"center\" class=\"w640\" width=\"640\" height=\"20\"> <span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"MirrorPage\" data-nl-label=\"Link to the mirror page (MirrorPage)\">Link to the mirror page</span> </td></tr><tr><td class=\"w640\" width=\"640\" height=\"10\"></td></tr><!-- header --><tr class=\"pagetoplogo\"><td class=\"w640\" width=\"640\"><table class=\"w640\" width=\"640\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" bgcolor=\"#F5F5F5\"><tbody><tr><td class=\"w580\" width=\"640\" valign=\"middle\" align=\"left\"><div class=\"pagetoplogo-content\">\r\n" +
+    "                              \r\n" +
+    "                            </div></td></tr></tbody></table></td></tr><!-- contenu --><tr class=\"content\"><td class=\"w640\" width=\"640\" bgcolor=\"#ffffff\"><table class=\"w640\" width=\"640\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tbody><tr><td class=\"w30\" width=\"30\"><br></td><td class=\"w580\" width=\"580\"><table class=\"w580\" width=\"580\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tbody><tr><td class=\"w580\" width=\"580\"><div align=\"left\" class=\"article-content\" style=\"line-height:22px;\"><p><span class=\"acr-field nl-dce-field\" data-nl-expr=\"/context/rtEvent/ctx/emailBody\" data-nl-type=\"string\" data-contenteditable=\"false\">emailBody (emailBody)</span><br></p><p><br></p><p>&nbsp;</p></div></td></tr></tbody></table><!-- end zone --></td><td class=\"w30\" width=\"30\"></td></tr></tbody></table></td></tr><!-- page footer --><tr class=\"pagebottom\"><td class=\"w640\" width=\"640\"><table class=\"w640\" width=\"640\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" bgcolor=\"#FAFAFA\"><tbody><tr><td colspan=\"5\" height=\"10\"></td></tr><tr><td class=\"w30\" width=\"30\"></td><td class=\"w580\" width=\"580\" valign=\"top\"><p align=\"right\" class=\"pagebottom-content-left\" style=\"text-align:center;\">Unilever "+ date.getFullYear() + "</p></td><td class=\"w30\" width=\"30\"></td></tr><tr><td colspan=\"5\" height=\"10\"></td></tr></tbody></table></td></tr><tr><td class=\"w640\" width=\"640\" height=\"60\"></td></tr></tbody></table></td></tr></tbody></table></body></html>]]></source>\r\n" +
+    "          </html>\r\n" +
+    "        </email>\r\n" +
+    "        <scriptContext name=\"default\"/>\r\n" +
+    "      </content>\r\n" +
+    "      <output seedInsertMode=\"0\">\r\n" +
+    "        <extraction>\r\n" +
+    "          <source batchSize=\"200\" format=\"text\" startPath=\"/\" upload=\"true\">\r\n" +
+    "            <dataSourceConfig codepage=\"1252\" colType=\"0\" ignoreConfigCheck=\"false\"\r\n" +
+    "                              strictColumnCheck=\"false\" textQualifier=\"none\" timezone=\"_inherit_\"\r\n" +
+    "                              useCR=\"false\" useLF=\"false\"/>\r\n" +
+    "            <dataSourceConfigDest codepage=\"1252\" colType=\"0\" ignoreConfigCheck=\"false\"\r\n" +
+    "                                  strictColumnCheck=\"false\" textQualifier=\"none\"\r\n" +
+    "                                  timezone=\"_inherit_\" useCR=\"false\" useLF=\"false\"/>\r\n" +
+    "          </source>\r\n" +
+    "          <destination downloadDestFile=\"true\" endRecord=\"0\" progressLines=\"20\" putUnmappedCols=\"true\"\r\n" +
+    "                       startPath=\"/\" startRecord=\"0\" transactionLines=\"200\">\r\n" +
+    "            <exportFormat allAsString=\"false\" analyze=\"false\" codepage=\"1252\" delEscaping=\"duplicateDel\"\r\n" +
+    "                          delimitor=\"delNone\" format=\"text\" lineEnd=\"0\" saveTitle=\"true\"\r\n" +
+    "                          separator=\"sepTab\" timezone=\"_inherit_\">\r\n" +
+    "              <dataFormat decimalCount=\"-1\" hideTime=\"false\" orderDate=\"ymd\" sepDate=\"/\"\r\n" +
+    "                          sepDateTime=\" \" sepNumber=\".\" sepThousand=\"false\" sepTime=\":\"\r\n" +
+    "                          showMs=\"false\" showSec=\"true\" yearShort=\"false\"/>\r\n" +
+    "            </exportFormat>\r\n" +
+    "          </destination>\r\n" +
+    "        </extraction>\r\n" +
+    "      </output>\r\n" +
+    "      <tracking enabled=\"true\" openEnabled=\"true\">\r\n" +
+    "        <clickFormula><![CDATA[<%@ include option='NmsTracking_ClickFormula' %>]]></clickFormula>\r\n" +
+    "        <openFormula><![CDATA[<%@ include option='NmsTracking_OpenFormula' %>]]></openFormula>\r\n" +
+    "      </tracking>\r\n" +
+    "      <notifications pulseAbTestComplete=\"true\"/>\r\n" +
+    "      <advancedParameters businessRankingRuleActive=\"false\" codepage=\"65001\" emailArchiving=\"false\"\r\n" +
+    "                          forceCodepage=\"false\" showSQL=\"false\" verifyMode=\"false\"/>\r\n" +
+    "      <properties FCPCount=\"0\" ctrlGrpExclusion=\"0\" deliveryState=\"0\" exclusion=\"0\"\r\n" +
+    "                  renderingCount=\"0\" scenarioModTime=\"\" toDeliver=\"0\" trapCount=\"0\"\r\n" +
+    "                  url=\"0\"></properties>\r\n" +
+    "      <volume duration=\"1\" rate=\"100\"/>\r\n" +
+    "      <offerManagement active=\"0\" batchId=\"\"/>\r\n" +
+    "      <validation sandboxMode=\"0\"/>\r\n" +
+    "      <dynamicIndicators datasource=\"enriched\" dynamicDelivered=\"10\" dynamicDeliveredRatio=\"1\"\r\n" +
+    "                         dynamicError=\"0\" dynamicErrorRatio=\"0\" dynamicRecipientClick=\"0\"\r\n" +
+    "                         dynamicRecipientOpen=\"10\" dynamicSent=\"10\"/>\r\n" +
+    "      <indicators amount=\"0\" article=\"0\" delivered=\"0\" deliveredWithoutTraps=\"0\"\r\n" +
+    "                  dirty=\"0\" disabled=\"0\" error=\"0\" errorPending=\"0\" firstPassSent=\"0\"\r\n" +
+    "                  forward=\"0\" invalidDomain=\"0\" lastErrorComputation=\"\" lastTrackingComputation=\"\"\r\n" +
+    "                  mailboxFull=\"0\" mirrorPage=\"0\" newQuarantine=\"0\" notConnected=\"0\"\r\n" +
+    "                  notSent=\"0\" optOut=\"0\" partsSent=\"0\" personClick=\"0\" processed=\"0\"\r\n" +
+    "                  recipientClick=\"0\" recipientOpen=\"0\" refused=\"0\" rejected=\"0\" screamers=\"0\"\r\n" +
+    "                  sent=\"0\" totalRecipientClick=\"0\" totalRecipientOpen=\"0\" totalWebPage=\"0\"\r\n" +
+    "                  trackingPending=\"0\" transaction=\"0\" unknownUser=\"0\" unreachable=\"0\"\r\n" +
+    "                  webPage=\"0\"/>\r\n" +
+    "      <triggerMessage eventType=\"EVT"+ distinctMarkets[i] +"_DEFAULT_EML_PR_ECOM\" mcTemplateId=\"0\"/>\r\n" +
+    "      <orgUnit _operation=\"none\" name=\"all\"/>\r\n" +
+    "      <geoUnit _operation=\"none\" name=\"all\"/>\r\n" +
+    "      <deliveryProvider _operation=\"none\" name=\"defaultEmailBulk\"/>\r\n" +
+    "      <typology _operation=\"none\" name=\"mcTypology\"/>\r\n" +
+    "      <mapping _operation=\"none\" name=\"mapRtEvent\"/>\r\n" +
+    "      <branding _operation=\"none\" name=\"branding\"/>\r\n" +
+    "      <eventConf _operation=\"none\" isSnapshot=\"0\" name=\"EVT"+ distinctMarkets[i] +"_DEFAULT_EML_PR_ECOM\"/>\r\n" +
+    "    </delivery>\r\n" +
+    "  </entities>\r\n";
+
+    transactionalEmail = transactionalEmail + sb;
+  }
+
+}
+// STUB FOR TRANSACTIONAL EMAIL
+function buildTransactionalSMSXml(brandArray){
+
+var sb = "  <entities schema=\"xtk:cusResource\">\r\n" +
+"    <cusResource activationStatus=\"1\" extendedResource=\"\" isHidden=\"0\" isSnapshot=\"0\"\r\n" +
+"                 label=\"EVT"+ brandArray[19] + "_DEFAULT_SMS_OTP\" messageType=\"1\" name=\"EVT"+ brandArray[19] + "_DEFAULT_SMS_OTP\"\r\n" +
+"                 publicationDate=\"2020-03-24 12:28:27.000Z\" targetSchema=\"nms:rtEvent\"\r\n" +
+"                 tempLogicalStatus=\"0\" type=\"2\">\r\n" +
+"      <eventParameters addFollowupTemplate=\"false\"/>\r\n" +
+"      <schema autopk=\"int64\">\r\n" +
+"        <field category=\"99_none\" defaultValueType=\"none\" label=\"createdTime\" len=\"127\"\r\n" +
+"               name=\"createdTime\" sensitivity=\"true\" type=\"datetime\"></field>\r\n" +
+"        <field category=\"99_none\" defaultValueType=\"none\" label=\"expiryTimeframe\"\r\n" +
+"               len=\"127\" name=\"expiryTimeframe\" sensitivity=\"true\" type=\"byte\"></field>\r\n" +
+"        <field category=\"99_none\" defaultValueType=\"none\" label=\"messageBody\" len=\"512\"\r\n" +
+"               name=\"messageBody\" sensitivity=\"true\" type=\"string\"></field>\r\n" +
+"      </schema>\r\n" +
+"      <screens>\r\n" +
+"        <detail layout=\"col1\"/>\r\n" +
+"      </screens>\r\n" +
+"    </cusResource>\r\n" +
+"  </entities>\r\n" +
+"  <entities schema=\"nms:delivery\">\r\n" +
+"    <delivery FCP=\"0\" advanced=\"0\" analysisStep=\"0\" builtIn=\"0\" contentModTime=\"\"\r\n" +
+"              contentSource=\"0\" cusDeliveryCode=\"\" cusUtmCampaign=\"\" cusUtmMedium=\"\"\r\n" +
+"              cusUtmSource=\"\" executionType=\"2\" forcePreparation=\"0\" hasAttachments=\"0\"\r\n" +
+"              hideAudienceStep=\"0\" isMaster=\"0\" isTemplate=\"1\" label=\"EVT"+ brandArray[19] + "_DEFAULT_SMS_OTP\"\r\n" +
+"              name=\"RTEVT"+ brandArray[19] + "_DEFAULT_SMS_OTP\" priority=\"10\" resourceVersion=\"head\"\r\n" +
+"              sourceId=\"0\" thumbnail=\"/nl/img/thumbnails/defaultDelivery.png\">\r\n" +
+"      <forecast simuResponseType=\"0\" weight=\"5\" weightType=\"0\">\r\n" +
+"        <weightFormula>$(deliveryWeight)</weightFormula>\r\n" +
+"      </forecast>\r\n" +
+"      <scheduling IPAffinity=\"\" contactDate=\"2020-04-14 11:48:16.000Z\" contactDateTimeZone=\"Asia/Kuala_Lumpur\"\r\n" +
+"                  delayExtraction=\"0\" delayed=\"0\" extracted=\"\" extraction=\"\" sendingMode=\"0\"\r\n" +
+"                  validationMode=\"manual\" validityDate=\"\" webResPurged=\"0\" webValidityDate=\"\"></scheduling>\r\n" +
+"      <abTesting decisionMode=\"manual\" decisionStrategy=\"openRate\" enabled=\"0\" learningPeriod=\"86400\"\r\n" +
+"                 learningSizeMode=\"manual\" pulseNotificationSent=\"false\" testMode=\"subject\"\r\n" +
+"                 winner=\"\"></abTesting>\r\n" +
+"      <offerManagement active=\"0\"></offerManagement>\r\n" +
+"      <execution broadEndDate=\"\" broadStartDate=\"\" firstPassEndDate=\"\" maxRetry=\"5\"\r\n" +
+"                 nextPassDate=\"\" passStartDate=\"\" retry=\"0\" retryPeriod=\"3600\">\r\n" +
+"        <controlGroup type=\"3\">\r\n" +
+"          <where filteringSchema=\"\"></where>\r\n" +
+"        </controlGroup>\r\n" +
+"      </execution>\r\n" +
+"      <scenario aggregationPeriod=\"0\" setDirectDates=\"false\" useLabelScript=\"true\"\r\n" +
+"                validityDuration=\"3110400\" webValidityDuration=\"5184000\">\r\n" +
+//"        <labelScript><%= formatDate(getCurrentDate(), \"%4Y/%2M\") %> <%= delivery.label %></labelScript>\r\n" +
+"      </scenario>\r\n" +
+"      <fcpParameters addFormatInPrefix=\"true\" fcpMailFormat=\"normal\" fcpVariantSel=\"auto\"\r\n" +
+"                     labelPrefix=\"Proof\" useSpecificOutputFile=\"false\"/>\r\n" +
+"      <mailParameters mirrorPagePolicy=\"default\" needMirrorPage=\"0\"/>\r\n" +
+"      <smsParameters maxSmsPerMessage=\"1\" mobileMsgType=\"0\" smsAppType=\"2\" smsMode=\"-1\"\r\n" +
+"                     smsPriority=\"0\"/>\r\n" +
+"      <pushnotificationParameters maxPushnotificationPayloadSize=\"4096\"/>\r\n" +
+"      <targets audienceType=\"acsAudience\" emptyReprForMissingOffer=\"true\" filteringSchema=\"\"\r\n" +
+"               maxErrorCount=\"3\" qualityRequired=\"3\">\r\n" +
+"        <deliveryTarget>\r\n" +
+"          <where filteringResource=\"rtEvent\" filteringSchema=\"\" targetResource=\"rtEvent\"></where>\r\n" +
+"        </deliveryTarget>\r\n" +
+"        <seedTarget>\r\n" +
+"          <where displayFilter=\"Profiles linked to event 'EVT"+ brandArray[19] + "_DEFAULT_SMS_OTP'\"\r\n" +
+"                 filteringResource=\"seedMember\" filteringSchema=\"nms:seedMember\">\r\n" +
+"            <condition boolOperator=\"AND\" desc=\"Profiles linked to event 'EVT"+ brandArray[19] + "_DEFAULT_SMS_OTP'\"\r\n" +
+"                       expr=\"[nms_rtEvent/@eventType] = 'EVT"+ brandArray[19] + "_DEFAULT_SMS_OTP'\"></condition>\r\n" +
+"          </where>\r\n" +
+"        </seedTarget>\r\n" +
+"      </targets>\r\n" +
+"      <content contextResource=\"EVT"+ brandArray[19] + "_DEFAULT_SMS_OTP\" defaultVariant=\"default\" formatSelection=\"preferences\"\r\n" +
+"               htmlCompression=\"false\" ignoreScripts=\"false\">\r\n" +
+"        <sms variant=\"default\" variantLabel=\"Default\">\r\n" +
+"          <text>\r\n" +
+"            <source><![CDATA[<span class=\"nl-dce-field nl-dce-done\" id=\"span158687007411673\" data-nl-expr=\"/context/rtEvent/ctx/messageBody\" data-nl-type=\"string\">messageBody</span>]]></source>\r\n" +
+"          </text>\r\n" +
+"        </sms>\r\n" +
+"        <scriptContext name=\"default\"/>\r\n" +
+"      </content>\r\n" +
+"      <output seedInsertMode=\"0\">\r\n" +
+"        <extraction>\r\n" +
+"          <source batchSize=\"200\" format=\"text\" startPath=\"/\" upload=\"true\">\r\n" +
+"            <dataSourceConfig codepage=\"1252\" colType=\"0\" ignoreConfigCheck=\"false\"\r\n" +
+"                              strictColumnCheck=\"false\" textQualifier=\"none\" timezone=\"_inherit_\"\r\n" +
+"                              useCR=\"false\" useLF=\"false\"/>\r\n" +
+"            <dataSourceConfigDest codepage=\"1252\" colType=\"0\" ignoreConfigCheck=\"false\"\r\n" +
+"                                  strictColumnCheck=\"false\" textQualifier=\"none\"\r\n" +
+"                                  timezone=\"_inherit_\" useCR=\"false\" useLF=\"false\"/>\r\n" +
+"          </source>\r\n" +
+"          <destination downloadDestFile=\"true\" endRecord=\"0\" progressLines=\"20\" putUnmappedCols=\"true\"\r\n" +
+"                       startPath=\"/\" startRecord=\"0\" transactionLines=\"200\">\r\n" +
+"            <exportFormat allAsString=\"false\" analyze=\"false\" codepage=\"1252\" delEscaping=\"duplicateDel\"\r\n" +
+"                          delimitor=\"delNone\" format=\"text\" lineEnd=\"0\" saveTitle=\"true\"\r\n" +
+"                          separator=\"sepTab\" timezone=\"_inherit_\">\r\n" +
+"              <dataFormat decimalCount=\"-1\" hideTime=\"false\" orderDate=\"ymd\" sepDate=\"/\"\r\n" +
+"                          sepDateTime=\" \" sepNumber=\".\" sepThousand=\"false\" sepTime=\":\"\r\n" +
+"                          showMs=\"false\" showSec=\"true\" yearShort=\"false\"/>\r\n" +
+"            </exportFormat>\r\n" +
+"          </destination>\r\n" +
+"        </extraction>\r\n" +
+"      </output>\r\n" +
+"      <tracking enabled=\"true\" openEnabled=\"true\">\r\n" +
+"        <clickFormula><![CDATA[<%@ include option='NmsTracking_ClickFormula' %>]]></clickFormula>\r\n" +
+"        <openFormula><![CDATA[<%@ include option='NmsTracking_OpenFormula' %>]]></openFormula>\r\n" +
+"      </tracking>\r\n" +
+"      <notifications pulseAbTestComplete=\"true\"/>\r\n" +
+"      <advancedParameters businessRankingRuleActive=\"false\" codepage=\"65001\" emailArchiving=\"false\"\r\n" +
+"                          forceCodepage=\"false\" showSQL=\"false\" verifyMode=\"false\"/>\r\n" +
+"      <properties FCPCount=\"0\" ctrlGrpExclusion=\"0\" deliveryState=\"0\" exclusion=\"0\"\r\n" +
+"                  renderingCount=\"0\" scenarioModTime=\"\" toDeliver=\"0\" trapCount=\"0\"\r\n" +
+"                  url=\"0\"></properties>\r\n" +
+"      <volume duration=\"1\" rate=\"100\"/>\r\n" +
+"      <validation sandboxMode=\"0\"/>\r\n" +
+"      <dynamicIndicators datasource=\"\" dynamicDelivered=\"0\" dynamicDeliveredRatio=\"0\"\r\n" +
+"                         dynamicError=\"0\" dynamicErrorRatio=\"0\" dynamicRecipientClick=\"0\"\r\n" +
+"                         dynamicRecipientOpen=\"0\" dynamicSent=\"0\"/>\r\n" +
+"      <indicators amount=\"0\" article=\"0\" delivered=\"0\" deliveredWithoutTraps=\"0\"\r\n" +
+"                  dirty=\"0\" disabled=\"0\" error=\"0\" errorPending=\"0\" firstPassSent=\"0\"\r\n" +
+"                  forward=\"0\" invalidDomain=\"0\" lastErrorComputation=\"\" lastTrackingComputation=\"\"\r\n" +
+"                  mailboxFull=\"0\" mirrorPage=\"0\" newQuarantine=\"0\" notConnected=\"0\"\r\n" +
+"                  notSent=\"0\" optOut=\"0\" partsSent=\"0\" personClick=\"0\" processed=\"0\"\r\n" +
+"                  recipientClick=\"0\" recipientOpen=\"0\" refused=\"0\" rejected=\"0\" screamers=\"0\"\r\n" +
+"                  sent=\"0\" totalRecipientClick=\"0\" totalRecipientOpen=\"0\" totalWebPage=\"0\"\r\n" +
+"                  trackingPending=\"0\" transaction=\"0\" unknownUser=\"0\" unreachable=\"0\"\r\n" +
+"                  webPage=\"0\"/>\r\n" +
+"      <triggerMessage eventType=\"EVT"+ brandArray[19] + "_DEFAULT_SMS_OTP\" mcTemplateId=\"0\"/>\r\n" +
+"      <orgUnit _operation=\"none\" name=\"all\"/>\r\n" +
+"      <geoUnit _operation=\"none\" name=\"all\"/>\r\n" +
+"      <deliveryProvider _operation=\"none\" name=\"UnileverTEST2SMPPSSL\"/>\r\n" +
+"      <typology _operation=\"none\" name=\"mcTypology\"/>\r\n" +
+"      <mapping _operation=\"none\" name=\"mapRtEvent\"/>\r\n" +
+"      <branding _operation=\"none\" name=\"branding\"/>\r\n" +
+"      <eventConf _operation=\"none\" isSnapshot=\"0\" name=\"EVT"+ brandArray[19] + "_DEFAULT_SMS_OTP\"/>\r\n" +
+"    </delivery>\r\n" +
+"  </entities>\r\n";
+//"  </entities>\r\n";
+
+  transactionalSms = transactionalSms + sb;
+
+}
+
+// STUB FOR OTP EMAIL
+function buildOTPtransactionalEML(){
+
+
+for(i=0 ; i< distinctMarkets.length; i++){
+    var domain = getMarketMapping(distinctMarkets[i]);
+    console.log("mailing domain = " + domain);
+    console.log("ISO Code = " + distinctMarkets[i]);
+
+    var sb = "  <entities schema=\"xtk:cusResource\">\r\n" +
+"    <cusResource activationStatus=\"1\" extendedResource=\"\" isHidden=\"0\" isSnapshot=\"0\"\r\n" +
+"                 label=\"EVT"+ distinctMarkets[i] + "_DEFAULT_EML_OTP\" messageType=\"0\" name=\"EVT"+ distinctMarkets[i] + "_DEFAULT_EML_OTP\"\r\n" +
+"                 publicationDate=\"2020-03-24 12:30:31.000Z\" targetSchema=\"nms:rtEvent\"\r\n" +
+"                 tempLogicalStatus=\"0\" type=\"2\">\r\n" +
+"      <eventParameters addFollowupTemplate=\"false\"/>\r\n" +
+"      <schema autopk=\"int64\">\r\n" +
+"        <field category=\"99_none\" defaultValueType=\"none\" label=\"createdTime\" len=\"127\"\r\n" +
+"               name=\"createdTime\" sensitivity=\"true\" type=\"datetime\"></field>\r\n" +
+"        <field category=\"99_none\" defaultValueType=\"none\" label=\"expiryTimeframe\"\r\n" +
+"               len=\"127\" name=\"expiryTimeframe\" sensitivity=\"true\" type=\"byte\"></field>\r\n" +
+"        <field category=\"99_none\" defaultValueType=\"none\" label=\"subjectLine\" len=\"256\"\r\n" +
+"               name=\"subjectLine\" sensitivity=\"true\" type=\"string\"></field>\r\n" +
+"        <field category=\"99_none\" defaultValueType=\"none\" label=\"messageBody\" len=\"512\"\r\n" +
+"               name=\"messageBody\" sensitivity=\"true\" type=\"string\"></field>\r\n" +
+"      </schema>\r\n" +
+"      <screens>\r\n" +
+"        <detail layout=\"col1\"/>\r\n" +
+"      </screens>\r\n" +
+"    </cusResource>\r\n" +
+"  </entities>\r\n" +
+"  <entities schema=\"nms:delivery\">\r\n" +
+"    <delivery FCP=\"0\" advanced=\"0\" analysisStep=\"0\" builtIn=\"0\" contentModTime=\"\"\r\n" +
+"              contentSource=\"0\" cusDeliveryCode=\"\" cusUtmCampaign=\"\" cusUtmMedium=\"\"\r\n" +
+"              cusUtmSource=\"\" executionType=\"2\" forcePreparation=\"0\" hasAttachments=\"0\"\r\n" +
+"              hideAudienceStep=\"0\" isMaster=\"0\" isTemplate=\"1\" label=\"EVT"+ distinctMarkets[i] + "_DEFAULT_EML_OTP\"\r\n" +
+"              name=\"RTEVT"+ distinctMarkets[i] + "_DEFAULT_EML_OTP\" priority=\"10\" resourceVersion=\"head\"\r\n" +
+"              sourceId=\"0\" thumbnail=\"\">\r\n" +
+"      <forecast simuResponseType=\"0\" weight=\"5\" weightType=\"0\">\r\n" +
+"        <weightFormula>$(deliveryWeight)</weightFormula>\r\n" +
+"      </forecast>\r\n" +
+"      <scheduling IPAffinity=\"\" contactDate=\"2020-06-09 10:45:10.000Z\" contactDateTimeZone=\"Asia/Kuala_Lumpur\"\r\n" +
+"                  delayExtraction=\"0\" delayed=\"0\" extracted=\"\" extraction=\"\" sendingMode=\"0\"\r\n" +
+"                  validationMode=\"manual\" validityDate=\"\" webResPurged=\"0\" webValidityDate=\"\"></scheduling>\r\n" +
+"      <abTesting decisionMode=\"manual\" decisionStrategy=\"openRate\" enabled=\"0\" learningPeriod=\"86400\"\r\n" +
+"                 learningSizeMode=\"manual\" pulseNotificationSent=\"false\" testMode=\"subject\"\r\n" +
+"                 winner=\"\"></abTesting>\r\n" +
+"      <execution broadEndDate=\"\" broadStartDate=\"\" firstPassEndDate=\"\" maxRetry=\"5\"\r\n" +
+"                 nextPassDate=\"\" passStartDate=\"\" retry=\"0\" retryPeriod=\"3600\">\r\n" +
+"        <controlGroup type=\"3\">\r\n" +
+"          <where filteringSchema=\"\"></where>\r\n" +
+"        </controlGroup>\r\n" +
+"      </execution>\r\n" +
+"      <scenario aggregationPeriod=\"0\" setDirectDates=\"false\" useLabelScript=\"true\"\r\n" +
+"                validityDuration=\"3110400\" webValidityDuration=\"5184000\">\r\n" +
+"        <labelScript>&lt;%= formatDate(getCurrentDate(), \"%4Y/%2M\") %&gt; &lt;%= delivery.label %&gt;</labelScript>\r\n" +
+"      </scenario>\r\n" +
+"      <fcpParameters addFormatInPrefix=\"true\" fcpMailFormat=\"normal\" fcpVariantSel=\"auto\"\r\n" +
+"                     labelPrefix=\"Proof\" useSpecificOutputFile=\"false\"/>\r\n" +
+"      <mailParameters mirrorPagePolicy=\"default\" needMirrorPage=\"0\">\r\n" +
+"        <senderAddress>noreply@" + domain + "</senderAddress>\r\n" +
+"        <replyAddress>noreply@" + domain + "</replyAddress>\r\n" +
+"        <replyName>Unilever " + distinctMarkets[i] + "</replyName>\r\n" +
+"        <errorAddress>bounce@" + domain + "</errorAddress>\r\n" +
+/*
+"        <senderAddress><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultSenderAddress\" contenteditable=\"false\">Email address of default sender</span>]]></senderAddress>\r\n" +
+"        <replyAddress><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultReplyAddress\" contenteditable=\"false\">Default reply-to email address</span>]]></replyAddress>\r\n" +
+"        <replyName><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultReplyName\" contenteditable=\"false\">Name of default reply-to email address</span>]]></replyName>\r\n" +
+"        <errorAddress><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultErrorAddress\" contenteditable=\"false\">Default error email address</span>]]></errorAddress>\r\n" +
+*/"      </mailParameters>\r\n" +
+"      <smsParameters maxSmsPerMessage=\"1\" mobileMsgType=\"0\" smsAppType=\"2\" smsMode=\"-1\"\r\n" +
+"                     smsPriority=\"0\"/>\r\n" +
+"      <pushnotificationParameters maxPushnotificationPayloadSize=\"4096\"/>\r\n" +
+"      <targets audienceType=\"acsAudience\" emptyReprForMissingOffer=\"true\" filteringSchema=\"\"\r\n" +
+"               maxErrorCount=\"3\" qualityRequired=\"3\">\r\n" +
+"        <deliveryTarget>\r\n" +
+"          <where filteringResource=\"rtEvent\" filteringSchema=\"\" targetResource=\"rtEvent\"></where>\r\n" +
+"        </deliveryTarget>\r\n" +
+"        <seedTarget>\r\n" +
+"          <where displayFilter=\"Profiles linked to event 'EVT"+ distinctMarkets[i] + "_DEFAULT_EML_OTP'\"\r\n" +
+"                 filteringResource=\"seedMember\" filteringSchema=\"nms:seedMember\">\r\n" +
+"            <condition boolOperator=\"AND\" desc=\"Profiles linked to event 'EVT"+ distinctMarkets[i] + "_DEFAULT_EML_OTP'\"\r\n" +
+"                       expr=\"[nms_rtEvent/@eventType] = 'EVT"+ distinctMarkets[i] + "_DEFAULT_EML_OTP'\"></condition>\r\n" +
+"          </where>\r\n" +
+"        </seedTarget>\r\n" +
+"      </targets>\r\n" +
+"      <content contextResource=\"EVT"+ distinctMarkets[i] + "_DEFAULT_EML_OTP\" defaultVariant=\"default\" formatSelection=\"preferences\"\r\n" +
+"               htmlCompression=\"false\" ignoreScripts=\"false\">\r\n" +
+"        <scriptContext name=\"default\"/>\r\n" +
+"        <email autoRefresh=\"false\" syncHtmlToPlainText=\"false\" variant=\"default\"\r\n" +
+"               variantLabel=\"Default\">\r\n" +
+"          <senderName>\r\n" +
+"            <source>Unilever " + distinctMarkets[i] + "</source>\r\n" +
+"          </senderName>\r\n" +
+"          <subject>\r\n" +
+"            <source><![CDATA[<span class=\"acr-field nl-dce-field\" data-nl-expr=\"/context/rtEvent/ctx/subjectLine\" data-nl-type=\"string\" contenteditable=\"false\">subjectLine (subjectLine)</span>]]></source>\r\n" +
+"          </subject>\r\n" +
+"          <html thumbnail=\"\">\r\n" +
+"            <source><![CDATA[<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional //EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\r\n" +
+"<html><head><title>Adobe Campaign newsletter template</title><span  class=\"nl-dce-fragment\" data-nl-name=\"EmailUrlBase\" >&nbsp;</span><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"><meta content=\"width=device-width\"><style type=\"text/css\">\r\n" +
+"      body, td { font-family: 'Helvetica Neue', Arial, Helvetica, Geneva, sans-serif; font-size:14px; }\r\n" +
+"      body { background-color: #F5F5F5; margin: 0; padding: 0; -webkit-text-size-adjust:none; -ms-text-size-adjust:none; }\r\n" +
+"      h2{ padding-top:12px; /* will not work in Outlook 2007+ */color:#0E7693; font-size:22px; }\r\n" +
+"      @media only screen and (max-width: 480px) {\r\n" +
+"        table[class=w275], td[class=w275], img[class=w275] { width:135px !important; }\r\n" +
+"        table[class=w30], td[class=w30], img[class=w30] { width:10px !important; }\r\n" +
+"        table[class=w580], td[class=w580], img[class=w580] { width:280px !important; }\r\n" +
+"        table[class=w640], td[class=w640], img[class=w640] { width:300px !important; }\r\n" +
+"        img{ height:auto;}\r\n" +
+"        /*unreadable, so skip to 3 lines */\r\n" +
+"        table[class=w180], td[class=w180], img[class=w180] {\r\n" +
+"          width:280px !important;\r\n" +
+"          display:block;\r\n" +
+"        }\r\n" +
+"        td[class=w20]{ display:none; }\r\n" +
+"      }\r\n" +
+"    </style></head><body style=\"margin:0px;padding:0px;text-size-adjust:none;text-align:center;\" class=\"is-html-mode nl-dce-variant nl-dce-variant-block nl-dce-if nl-dce-multiconditional\" data-nl-variant-group=\"1591699457947\" data-nl-variant-label=\"Label 1\" data-nl-variant-index=\"1\" data-nl-expr=\"\" data-nl-condition-type=\"multiple\" data-nl-variant-default=\"true\" data-contenteditable=\"true\"><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"background-color:rgb(42, 55, 78);\"><tbody><tr><td align=\"center\" bgcolor=\"#F5F5F5\"><table cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tbody><tr><td class=\"w640\" width=\"640\" height=\"10\"></td></tr><tr><td align=\"center\" class=\"w640\" width=\"640\" height=\"20\">  </td></tr><tr><td class=\"w640\" width=\"640\" height=\"10\"></td></tr><!-- header --><tr class=\"pagetoplogo\"></tr><!-- contenu --><tr class=\"content\"><td class=\"w640\" width=\"640\" bgcolor=\"#ffffff\"><table class=\"w640\" width=\"640\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tbody><tr><td class=\"w30\" width=\"30\"><br></td><td class=\"w580\" width=\"580\"><table class=\"w580\" width=\"580\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tbody><tr><td class=\"w580\" width=\"580\"><div align=\"left\" class=\"article-content\" style=\"line-height:22px;\"><span style=\"background-color:rgb(42, 55, 78);text-align:center;\"></span><span class=\"acr-field nl-dce-field\" data-nl-expr=\"/context/rtEvent/ctx/messageBody\" data-nl-type=\"string\" style=\"text-align:center;\" data-contenteditable=\"false\">messageBody (messageBody)</span><span style=\"background-color:rgb(42, 55, 78);text-align:center;\"></span><br></div></td></tr></tbody></table><!-- end zone --></td><td class=\"w30\" width=\"30\"></td></tr></tbody></table></td></tr><!-- page footer --><tr class=\"pagebottom\"><td class=\"w640\" width=\"640\"><table class=\"w640\" width=\"640\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" bgcolor=\"#FAFAFA\"><tbody><tr><td colspan=\"5\" height=\"10\"></td></tr><tr></tr><tr><td colspan=\"5\" height=\"10\"><br><span style=\"font-size:8px;\"></span></td></tr></tbody></table></td></tr><tr><td class=\"w640\" width=\"640\" height=\"60\"></td></tr></tbody></table></td></tr></tbody></table></body></html>]]></source>\r\n" +
+"          </html>\r\n" +
+"        </email>\r\n" +
+"      </content>\r\n" +
+"      <output seedInsertMode=\"0\">\r\n" +
+"        <extraction>\r\n" +
+"          <source batchSize=\"200\" format=\"text\" startPath=\"/\" upload=\"true\">\r\n" +
+"            <dataSourceConfig codepage=\"1252\" colType=\"0\" ignoreConfigCheck=\"false\"\r\n" +
+"                              strictColumnCheck=\"false\" textQualifier=\"none\" timezone=\"_inherit_\"\r\n" +
+"                              useCR=\"false\" useLF=\"false\"/>\r\n" +
+"            <dataSourceConfigDest codepage=\"1252\" colType=\"0\" ignoreConfigCheck=\"false\"\r\n" +
+"                                  strictColumnCheck=\"false\" textQualifier=\"none\"\r\n" +
+"                                  timezone=\"_inherit_\" useCR=\"false\" useLF=\"false\"/>\r\n" +
+"          </source>\r\n" +
+"          <destination downloadDestFile=\"true\" endRecord=\"0\" progressLines=\"20\" putUnmappedCols=\"true\"\r\n" +
+"                       startPath=\"/\" startRecord=\"0\" transactionLines=\"200\">\r\n" +
+"            <exportFormat allAsString=\"false\" analyze=\"false\" codepage=\"1252\" delEscaping=\"duplicateDel\"\r\n" +
+"                          delimitor=\"delNone\" format=\"text\" lineEnd=\"0\" saveTitle=\"true\"\r\n" +
+"                          separator=\"sepTab\" timezone=\"_inherit_\">\r\n" +
+"              <dataFormat decimalCount=\"-1\" hideTime=\"false\" orderDate=\"ymd\" sepDate=\"/\"\r\n" +
+"                          sepDateTime=\" \" sepNumber=\".\" sepThousand=\"false\" sepTime=\":\"\r\n" +
+"                          showMs=\"false\" showSec=\"true\" yearShort=\"false\"/>\r\n" +
+"            </exportFormat>\r\n" +
+"          </destination>\r\n" +
+"        </extraction>\r\n" +
+"      </output>\r\n" +
+"      <tracking enabled=\"true\" openEnabled=\"true\">\r\n" +
+"        <clickFormula><![CDATA[<%@ include option='NmsTracking_ClickFormula' %>]]></clickFormula>\r\n" +
+"        <openFormula><![CDATA[<%@ include option='NmsTracking_OpenFormula' %>]]></openFormula>\r\n" +
+"      </tracking>\r\n" +
+"      <notifications pulseAbTestComplete=\"true\"/>\r\n" +
+"      <advancedParameters businessRankingRuleActive=\"false\" codepage=\"65001\" emailArchiving=\"false\"\r\n" +
+"                          forceCodepage=\"false\" showSQL=\"false\" verifyMode=\"false\"/>\r\n" +
+"      <properties FCPCount=\"0\" ctrlGrpExclusion=\"0\" deliveryState=\"0\" exclusion=\"0\"\r\n" +
+"                  renderingCount=\"0\" scenarioModTime=\"\" toDeliver=\"0\" trapCount=\"0\"\r\n" +
+"                  url=\"0\"></properties>\r\n" +
+"      <volume duration=\"1\" rate=\"100\"/>\r\n" +
+"      <offerManagement active=\"0\" batchId=\"\"/>\r\n" +
+"      <validation sandboxMode=\"0\"/>\r\n" +
+"      <dynamicIndicators datasource=\"enriched\" dynamicDelivered=\"107\" dynamicDeliveredRatio=\"0.9727272727273\"\r\n" +
+"                         dynamicError=\"3\" dynamicErrorRatio=\"0.02727272727273\" dynamicRecipientClick=\"0\"\r\n" +
+"                         dynamicRecipientOpen=\"98\" dynamicSent=\"110\"/>\r\n" +
+"      <indicators amount=\"0\" article=\"0\" delivered=\"0\" deliveredWithoutTraps=\"0\"\r\n" +
+"                  dirty=\"0\" disabled=\"0\" error=\"0\" errorPending=\"0\" firstPassSent=\"0\"\r\n" +
+"                  forward=\"0\" invalidDomain=\"0\" lastErrorComputation=\"\" lastTrackingComputation=\"\"\r\n" +
+"                  mailboxFull=\"0\" mirrorPage=\"0\" newQuarantine=\"0\" notConnected=\"0\"\r\n" +
+"                  notSent=\"0\" optOut=\"0\" partsSent=\"0\" personClick=\"0\" processed=\"0\"\r\n" +
+"                  recipientClick=\"0\" recipientOpen=\"0\" refused=\"0\" rejected=\"0\" screamers=\"0\"\r\n" +
+"                  sent=\"0\" totalRecipientClick=\"0\" totalRecipientOpen=\"0\" totalWebPage=\"0\"\r\n" +
+"                  trackingPending=\"0\" transaction=\"0\" unknownUser=\"0\" unreachable=\"0\"\r\n" +
+"                  webPage=\"0\"/>\r\n" +
+"      <triggerMessage eventType=\"EVT"+ distinctMarkets[i] + "_DEFAULT_EML_OTP\" mcTemplateId=\"0\"/>\r\n" +
+"      <orgUnit _operation=\"none\" name=\"all\"/>\r\n" +
+"      <geoUnit _operation=\"none\" name=\"all\"/>\r\n" +
+"      <deliveryProvider _operation=\"none\" name=\"defaultEmailBulk\"/>\r\n" +
+"      <typology _operation=\"none\" name=\"mcTypology\"/>\r\n" +
+"      <mapping _operation=\"none\" name=\"mapRtEvent\"/>\r\n" +
+"      <branding _operation=\"none\" name=\"branding\"/>\r\n" +
+"      <eventConf _operation=\"none\" isSnapshot=\"0\" name=\"EVT"+ distinctMarkets[i] + "_DEFAULT_EML_OTP\"/>\r\n" +
+"    </delivery>\r\n" +
+"  </entities>\r\n";
+
+
+    otpEML=otpEML+sb;
+
+  }
+}
+
+  // 0 build date
+  // 1 brand label
+  // 2 logo url
+  // 3 mirror page url
+  // 4 name
+  // 5 public label
+  // 6 mirror page url
+  // 7 tracking server url
+  // 8 sender address
+  // 9 sender name
+  // 10 reply address
+  // 11 reply name
+  // 12 Error Address
+  // 13 Language Code
+  // 14 Program Parent(PH_Ponds)
+  // 15 Program Name  (PH_Ponds_Welcome)
+  // 16 Campaign Name (PH_Ponds_Welcome_WEL)
+  // 17 Workflow Name (PH_Ponds_Welcome_WEL_EN)
+  // 18 Delivery Name (PH_Ponds_Welcome_WEL_EN_2020)
+  // 19 ISO2 Market Code
+  // 20 Website URL
+  // 21 Brand name 
+  // 22 Privacy Policy
+  // 23 Cookie Policy
+  // 24 Country Typology
+
+
+// Function to parameterise welcome email content blocks
+function buildContentBlocks(brandArray){
+
+
+  var sb = "  <entities schema=\"nms:contentFragment\">\r\n" +
+"    <contentFragment builtIn=\"0\" contentType=\"1\" label=\"cusWelcomeTemplateBlock"+brandArray[14]+"\" name=\"cusWelcomeTemplateBlock"+brandArray[14]+"\"\r\n" +
+"                     targetResource=\"\" thumbnail=\"\">\r\n" +
+"      <source dependOnFormat=\"true\" noEscaping=\"false\">\r\n" +
+"        <html><![CDATA[<!DOCTYPE html>\r\n" +
+"<html style=\"\">\r\n" +
+"  <head>\r\n" +
+"    <meta name=\"content-version\" content=\"3.2.0\">\r\n" +
+"    <meta class=\"nl-dce-fragment\" data-nl-name=\"EmailUrlBase\">\r\n" +
+"    <meta name=\"x-apple-disable-message-reformatting\">\r\n" +
+"    <meta name=\"viewport\" content=\"width=device-width,initial-scale=1.0\">\r\n" +
+"    <style data-name=\"default\" type=\"text/css\">body{font-family:sans-serif;margin:0 !important;padding:0 !important;background:#FFFFFF;min-width:750px;}td{padding:0;border-collapse:collapse;}th{font-weight:normal;text-align:left;}.acr-fragment,.acr-component{padding:0;}.divider-container{padding:5px 0;font-size:0px;}.text-container p{margin:0;}.image-container{line-height:0;}.acr-tmp-component img,.image-container img{height:auto;}.button-container a{text-decoration:none;color:inherit;}@media screen and (min-width: 500px){.is-desktop-hidden{display:none !important;}}.acr-structure{background-size:auto;background-repeat:no-repeat;}.structure__table{table-layout:fixed;margin:0 auto;border-spacing:0;background-size:auto;background-repeat:no-repeat;mso-table-lspace:0pt !important;mso-table-rspace:0pt !important;}.colspan1,.colspan2,.colspan3,.colspan4,.colspan33,.colspan66{background-size:auto;background-repeat:no-repeat;box-sizing:border-box;}.colspan1{width:100%;}.colspan2{width:50%;}.colspan3{width:75%;}.colspan4{width:25%;}.colspan33{width:33%;}.colspan66{width:66%;}.component-social-container{width:100%;text-align:center;}.acr-video-container video,.acr-video-container img,.acr-video-container-fallback img{width:100%;}.acr-video-container{display:none;text-align:center;}#MessageViewBody .acr-video-container{display:block!important;}#MessageViewBody .acr-video-container-fallback{display:none!important;}[data-component-id=\"carousel\"] .dock{display:flex;width:100%;position:relative;left:0;}[data-component-id=\"carousel\"] .dock .thumbnailContainer{display:flex;flex:1 0;justify-content:center;overflow:hidden;}[data-component-id=\"carousel\"] .thumbnail{height:100%;text-align:center;position:relative;}[data-component-id=\"carousel\"] .thumbnail.not-empty::before{content:' ';position:absolute;width:100%;height:100%;}[data-component-id=\"carousel\"] .thumbnail img{width:calc(100% - 4px) !important;border:2px solid rgb(234, 234, 234);transition:.5s border-color;}[data-component-id=\"carousel\"] .thumbnailLabel{width:100%;}[data-component-id=\"carousel\"] .thumbnail:hover img{border-color:#1473e6;}[data-component-id=\"carousel\"] .thumbnail .component-image-container{border:1px dashed rgb(234, 234, 234);}[data-component-id=\"carousel\"] [id^=\"radioInput0\"]:checked ~ div.dock div.thumbnail0 img,[data-component-id=\"carousel\"] [id^=\"radioInput1\"]:checked ~ div.dock div.thumbnail1 img,[data-component-id=\"carousel\"] [id^=\"radioInput2\"]:checked ~ div.dock div.thumbnail2 img,[data-component-id=\"carousel\"] [id^=\"radioInput3\"]:checked ~ div.dock div.thumbnail3 img,[data-component-id=\"carousel\"] [id^=\"radioInput4\"]:checked ~ div.dock div.thumbnail4 img,[data-component-id=\"carousel\"] [id^=\"radioInput5\"]:checked ~ div.dock div.thumbnail5 img{border-color:#1473e6;}[data-component-id=\"carousel\"] .gallery{width:100%;position:relative;min-height:200px;background-repeat:no-repeat;background-position:center;overflow:hidden;}[data-component-id=\"carousel\"] .galleryImage{position:absolute;top:0;left:0;right:0;height:auto;width:auto;max-width:100%;max-height:100%;margin:0 auto;transition:.5s opacity;}[data-component-id=\"carousel\"] [id^=\"radioInput0\"]:checked ~ div.gallery:first-of-type img.gallery1,[data-component-id=\"carousel\"] [id^=\"radioInput0\"]:checked ~ div.gallery:first-of-type img.gallery2,[data-component-id=\"carousel\"] [id^=\"radioInput0\"]:checked ~ div.gallery:first-of-type img.gallery3,[data-component-id=\"carousel\"] [id^=\"radioInput0\"]:checked ~ div.gallery:first-of-type img.gallery4,[data-component-id=\"carousel\"] [id^=\"radioInput0\"]:checked ~ div.gallery:first-of-type img.gallery5{opacity:0;}[data-component-id=\"carousel\"] [id^=\"radioInput1\"]:checked ~ div.gallery:first-of-type img.gallery0,[data-component-id=\"carousel\"] [id^=\"radioInput1\"]:checked ~ div.gallery:first-of-type img.gallery2,[data-component-id=\"carousel\"] [id^=\"radioInput1\"]:checked ~ div.gallery:first-of-type img.gallery3,[data-component-id=\"carousel\"] [id^=\"radioInput1\"]:checked ~ div.gallery:first-of-type img.gallery4,[data-component-id=\"carousel\"] [id^=\"radioInput1\"]:checked ~ div.gallery:first-of-type img.gallery5{opacity:0;}[data-component-id=\"carousel\"] [id^=\"radioInput2\"]:checked ~ div.gallery:first-of-type img.gallery0,[data-component-id=\"carousel\"] [id^=\"radioInput2\"]:checked ~ div.gallery:first-of-type img.gallery1,[data-component-id=\"carousel\"] [id^=\"radioInput2\"]:checked ~ div.gallery:first-of-type img.gallery3,[data-component-id=\"carousel\"] [id^=\"radioInput2\"]:checked ~ div.gallery:first-of-type img.gallery4,[data-component-id=\"carousel\"] [id^=\"radioInput2\"]:checked ~ div.gallery:first-of-type img.gallery5{opacity:0;}[data-component-id=\"carousel\"] [id^=\"radioInput3\"]:checked ~ div.gallery:first-of-type img.gallery0,[data-component-id=\"carousel\"] [id^=\"radioInput3\"]:checked ~ div.gallery:first-of-type img.gallery1,[data-component-id=\"carousel\"] [id^=\"radioInput3\"]:checked ~ div.gallery:first-of-type img.gallery2,[data-component-id=\"carousel\"] [id^=\"radioInput3\"]:checked ~ div.gallery:first-of-type img.gallery4,[data-component-id=\"carousel\"] [id^=\"radioInput3\"]:checked ~ div.gallery:first-of-type img.gallery5{opacity:0;}[data-component-id=\"carousel\"] [id^=\"radioInput4\"]:checked ~ div.gallery:first-of-type img.gallery0,[data-component-id=\"carousel\"] [id^=\"radioInput4\"]:checked ~ div.gallery:first-of-type img.gallery1,[data-component-id=\"carousel\"] [id^=\"radioInput4\"]:checked ~ div.gallery:first-of-type img.gallery2,[data-component-id=\"carousel\"] [id^=\"radioInput4\"]:checked ~ div.gallery:first-of-type img.gallery3,[data-component-id=\"carousel\"] [id^=\"radioInput4\"]:checked ~ div.gallery:first-of-type img.gallery5{opacity:0;}[data-component-id=\"carousel\"] [id^=\"radioInput5\"]:checked ~ div.gallery:first-of-type img.gallery0,[data-component-id=\"carousel\"] [id^=\"radioInput5\"]:checked ~ div.gallery:first-of-type img.gallery1,[data-component-id=\"carousel\"] [id^=\"radioInput5\"]:checked ~ div.gallery:first-of-type img.gallery2,[data-component-id=\"carousel\"] [id^=\"radioInput5\"]:checked ~ div.gallery:first-of-type img.gallery3,[data-component-id=\"carousel\"] [id^=\"radioInput5\"]:checked ~ div.gallery:first-of-type img.gallery4{opacity:0;}span.preheader{display:none !important;visibility:hidden;mso-hide:all;opacity:0;}[owa] [data-component-id=\"carousel\"] div.fallback{display:block!important;max-height:none!important;}[owa] [data-component-id=\"carousel\"] div.interactive{display:none!important;}.ExternalClass{width:100%;}.ExternalClass,.ExternalClass p,.ExternalClass span,.ExternalClass font,.ExternalClass td,.ExternalClass div{line-height:100%;}h1,h2,h3,h4,h5{display:block;font-weight:bold;}h1{font-size:24px;margin:19px 0 19px 0;}h2{font-size:24px;margin:20px 0 20px 0;}h3{font-size:19px;margin:19px 0 19px 0;}h4{font-size:16px;margin:21px 0 21px 0;}h5{font-size:13px;margin:22px 0 22px 0;}h6{font-size:11px;margin:25px 0 25px 0;}</style>\r\n" +
+"    <style data-name=\"supportIOS10\" type=\"text/css\">@supports (-webkit-overflow-scrolling:touch) and (color:#ffffffff){div[class^=acr-video-container]{display:block!important;}div[class^=acr-video-container-fallback]{display:none!important;}}</style>\r\n" +
+"    <style data-name=\"custom\" type=\"text/css\">body,#acr-52866182{background-color:rgb(253,253,253)!important;}</style>\r\n" +
+"    <style data-name=\"mediaIOS8\" type=\"text/css\">@media screen and (-webkit-min-device-pixel-ratio: 0) and (min-device-width:1024px){[data-component-id=\"video\"] .acr-video-container-fallback{display:none!important;}[data-component-id=\"video\"] .acr-video-container{display:block!important;}}</style>\r\n" +
+"    <style data-name=\"media-default-max-width-500px\" type=\"text/css\">@media screen and (max-width: 500px){body{width:100% !important;min-width:0px !important;}.structure__table{width:100%;}th{display:block !important;min-width:100%;}.container-small-size th{display:table-cell !important;width:100% !important;}.is-mobile-hidden{display:none !important;}}</style>\r\n" +
+"    <style data-name=\"media-default--webkit-min-device-pixel-ratio-0\" type=\"text/css\">@media screen and (-webkit-min-device-pixel-ratio: 0){[data-component-id=\"carousel\"] .fallback{display:none;display:none!important;max-height:0;overflow:hidden;}[data-component-id=\"carousel\"] .interactive{display:block!important;max-height:none!important;}}</style>\r\n" +
+"    <!--[if gte mso 9]><style acrite-mso-css=\"true\">.image-container div {  display: block;}.structure__table td {  padding: 0;  border: none;}.button-container {  border: none !important;  padding: 0 !important;  line-height: normal !important;}.acr-structure {  margin: 0 !important;}.acr-component {  margin: 0 !important;}.acr-fragment {  margin: 0 !important;}.colspan1, .colspan2, .colspan3, .colspan4, .colspan33, .colspan66 {  box-sizing: border-box !important;}</style><![endif]-->\r\n" +
+"  </head>\r\n" +
+"  <body class=\"\" id=\"acr-52866182\" style=\"\">\r\n" +
+"    <!--[if mso]><table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\"><tr><td style=\"background-color: rgb(253, 253, 253);\"><![endif]-->\r\n" +
+"    <div class=\"acr-container\">\r\n" +
+"      <div class=\"acr-structure\" data-structure-id=\"1-1-column\" data-structure-name=\"richtext.structure_1_1_column\">\r\n" +
+"        <!--[if mso]><table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\"><tr><td style=\"\"><![endif]-->\r\n" +
+"        <table class=\"structure__table\" align=\"center\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"750\">\r\n" +
+"          <tbody>\r\n" +
+"            <tr>\r\n" +
+"              <th class=\"colspan1\" data-name=\"Drag a new component here.\">\r\n" +
+"                <div class=\"acr-fragment acr-component\" data-component-id=\"text\" data-component-name=\"richtext.component_text\" style=\"margin-bottom: 20px; margin-top: 20px; font-family: Helvetica;\" contenteditable=\"false\">\r\n" +
+"                  <!--[if mso]><table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\"><tr><td style=\"font-family: Helvetica;\"><![endif]-->\r\n" +
+"                  <div class=\"text-container\" contenteditable=\"true\">\r\n" +
+"                    <p title=\"\" alt=\"\" align=\"\"><span style=\"font-size: 9px;\">This e-mail newsletter contains tracking cookies.&nbsp; If you click within this email (e.g. links/buttons) you agree that we track your internet behaviour on our and other websites and that we tailor advertisements to your interests and profile. See our <a class=\"arc-link\" data-id=\"al157381443634138bd8c\" data-nl-type=\"externalLink\" href=\"#\" data-nl-lnkep-perso-attr-href=\""+ brandArray[23]+"\" style=\"color: #676969;\">cookie</a> and&nbsp;</span><span style=\"font-size: 9px;\"><a class=\"arc-link\" data-id=\"al156318418612028a303\" data-nl-type=\"externalLink\" href=\"#\" data-nl-lnkep-perso-attr-href=\""+ brandArray[22]+"\" style=\"color: #676969;\">privacy policy</a>&nbsp;for more information.</span></p>\r\n" +
+"                    <p title=\"\" alt=\"\" align=\"\"></p>\r\n" +
+"                  </div>\r\n" +
+"                  <!--[if mso]></td></tr></table><![endif]-->\r\n" +
+"                </div>\r\n" +
+"              </th>\r\n" +
+"            </tr>\r\n" +
+"          </tbody>\r\n" +
+"        </table>\r\n" +
+"        <!--[if mso]></td></tr></table><![endif]-->\r\n" +
+"      </div>\r\n" +
+"      <div class=\"acr-structure\" data-structure-id=\"1-1-column\" data-structure-name=\"richtext.structure_1_1_column\">\r\n" +
+"        <table class=\"structure__table\" align=\"center\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"750\">\r\n" +
+"          <tbody>\r\n" +
+"            <tr>\r\n" +
+"              <th class=\"colspan1\" data-name=\"Drag a new component here.\">\r\n" +
+"                <div class=\"acr-fragment acr-component\" data-component-id=\"text\" data-component-name=\"richtext.component_text\" style=\"font-family: Helvetica;\" contenteditable=\"false\">\r\n" +
+"                  <!--[if mso]><table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\"><tr><td style=\"font-family: Helvetica;\"><![endif]-->\r\n" +
+"                  <div class=\"text-container\" contenteditable=\"true\">\r\n" +
+"                    <p title=\"\" alt=\"\" align=\"\"><span title=\"\" alt=\"\" align=\"\" style=\"font-size: 9px;\">Having trouble viewing this email?&nbsp;<a class=\"arc-link\" data-id=\"al15631960263574c66aa\" data-nl-type=\"externalLink\" href=\"#\" style=\"color: #676969;\" data-nl-lnkep-perso-attr-href=\"&lt;span class=&quot;acr-block nl-dce-fragment&quot; data-nl-name=&quot;MirrorPageUrl&quot; contenteditable=&quot;false&quot;&gt;Mirror page URL&lt;/span&gt;\">Click here</a></span></p>\r\n" +
+"                    <p title=\"\" alt=\"\" align=\"\"><span title=\"\" alt=\"\" align=\"\" style=\"font-size: 9px;\">&nbsp;</span></p>\r\n" +
+"                    <p title=\"\" alt=\"\" align=\"\"></p>\r\n" +
+"                  </div>\r\n" +
+"                  <!--[if mso]></td></tr></table><![endif]-->\r\n" +
+"                </div>\r\n" +
+"              </th>\r\n" +
+"            </tr>\r\n" +
+"          </tbody>\r\n" +
+"        </table>\r\n" +
+"      </div>\r\n" +
+"      <div class=\"acr-structure\" data-structure-id=\"1-1-column\" data-structure-name=\"richtext.structure_1_1_column\">\r\n" +
+"        <table class=\"structure__table\" align=\"center\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"750\" style=\"border-color: #f9f9f9;\">\r\n" +
+"          <tbody>\r\n" +
+"            <tr>\r\n" +
+"              <th class=\"colspan1\">\r\n" +
+"                <div class=\"acr-fragment acr-component image-container\" data-component-id=\"image\" style=\"width: 100%; text-align: center;\" contenteditable=\"false\">\r\n" +
+"                  <!--[if mso]><table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\"><tr><td style=\"text-align: center;\"><![endif]-->\r\n" +
+"                  <a class=\"arc-link\" data-id=\"al157468397886171ddf6\" data-nl-type=\"externalLink\" href=\"#\" data-nl-lnkep-perso-attr-href=\""+ brandArray[20]+"\"><img src=\""+  brandArray[2]+"\" width=\"375\" style=\"width: 50%;\" title=\""+ brandArray[21] + " " + brandArray[19] +"\" alt=\""+ brandArray[21] + " " + brandArray[19] +"\" data-nl-imgep-perso-attr-alt=\""+ brandArray[21] + " " + brandArray[19] +"\"></a>\r\n" +
+"                  <!--[if mso]></td></tr></table><![endif]-->\r\n" +
+"                </div>\r\n" +
+"              </th>\r\n" +
+"            </tr>\r\n" +
+"          </tbody>\r\n" +
+"        </table>\r\n" +
+"      </div>\r\n" +
+"      <div class=\"acr-structure\" data-structure-id=\"1-1-column\" data-structure-name=\"richtext.structure_1_1_column\">\r\n" +
+"        <table class=\"structure__table\" align=\"center\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"750\">\r\n" +
+"          <tbody>\r\n" +
+"            <tr>\r\n" +
+"              <th class=\"colspan1\" data-name=\"Drag a new component here.\">\r\n" +
+"                <div class=\"acr-fragment acr-component\" data-component-id=\"text\" data-component-name=\"richtext.component_text\" style=\"color: #1aa295; font-family: Helvetica; line-height: 32px; padding-top: 5px;\" contenteditable=\"false\">\r\n" +
+"                  <!--[if mso]><table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\"><tr><td style=\"color: rgb(26, 162, 149); font-family: Helvetica; line-height: 32px; padding-top: 5px;\"><![endif]-->\r\n" +
+"                  <div class=\"text-container\" contenteditable=\"true\">\r\n" +
+"                    <h1 style=\"text-align: center;\">Thank you for signing up to hear from "+brandArray[21]+"</h1>\r\n" +
+"                    <p title=\"\" alt=\"\" align=\"\" style=\"text-align: center;\"></p>\r\n" +
+"                    <h2></h2>\r\n" +
+"                    <p></p>\r\n" +
+"                    <p title=\"\" alt=\"\" align=\"\"></p>\r\n" +
+"                    <p title=\"\" alt=\"\" align=\"\"></p>\r\n" +
+"                  </div>\r\n" +
+"                  <!--[if mso]></td></tr></table><![endif]-->\r\n" +
+"                </div>\r\n" +
+"                <div class=\"acr-fragment acr-component\" data-component-id=\"text\" data-component-name=\"richtext.component_text\" style=\"color: #585656; font-family: Helvetica; line-height: 23px; letter-spacing: 0.406px; padding-top: 0px; padding-bottom: 0px;\" contenteditable=\"false\">\r\n" +
+"                  <!--[if mso]><table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\"><tr><td style=\"color: rgb(88, 86, 86); font-family: Helvetica; line-height: 23px; padding-top: 0px; padding-bottom: 0px;\"><![endif]-->\r\n" +
+"                  <div class=\"text-container\" contenteditable=\"true\">\r\n" +
+"                    <div style=\"text-align: center;\">You've taken the first step to making sure you're in the know! By Signing Up, you'll be the first to hear about exciting new products, great promotions and competitions from us.<br><br>We'll be in touch soon, but in the meantime, visit our website for interesting articles, tips and tricks.</div>\r\n" +
+"                    <p title=\"\" alt=\"\" align=\"\" style=\"text-align: center;\"></p>\r\n" +
+"                    <h2></h2>\r\n" +
+"                    <p></p>\r\n" +
+"                    <p title=\"\" alt=\"\" align=\"\"></p>\r\n" +
+"                    <p title=\"\" alt=\"\" align=\"\"></p>\r\n" +
+"                  </div>\r\n" +
+"                  <!--[if mso]></td></tr></table><![endif]-->\r\n" +
+"                </div>\r\n" +
+"              </th>\r\n" +
+"            </tr>\r\n" +
+"          </tbody>\r\n" +
+"        </table>\r\n" +
+"      </div>\r\n" +
+"      <div class=\"acr-structure\" data-structure-id=\"1-1-column\" data-structure-name=\"richtext.structure_1_1_column\">\r\n" +
+"        <table class=\"structure__table\" align=\"center\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"750\">\r\n" +
+"          <tbody>\r\n" +
+"            <tr>\r\n" +
+"              <th class=\"colspan1\">\r\n" +
+"                <div class=\"acr-fragment acr-component\" data-component-id=\"button\" style=\"width: 100%; text-align: center; margin-top: 20px; margin-bottom: 20px;\" contenteditable=\"false\">\r\n" +
+"                  <!--[if mso]><table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"200\"><tr><td style=\"text-align: center; border: 2px solid rgb(39, 39, 39); color: rgb(255, 255, 255); background-color: rgb(26, 162, 149); line-height: 35px; height: 35px;\"><![endif]-->\r\n" +
+"                  <div class=\"button-container\" style=\"width: 200px; text-align: center; margin: 0px auto; max-width: 100%; display: inline-block; border: 2px solid #272727; border-radius: 15px; height: 35px; line-height: 35px; color: #ffffff; background-color: #1aa295; text-transform: uppercase;\"><a href=\"#\" style=\"color: #ffffff;\" data-id=\"al15740947065807aaac5\" data-nl-type=\"externalLink\" data-nl-lnkep-perso-attr-href=\""+ brandArray[20] +"\" contenteditable=\"true\">Visit the website</a></div>\r\n" +
+"                  <!--[if mso]></td></tr></table><![endif]-->\r\n" +
+"                </div>\r\n" +
+"              </th>\r\n" +
+"            </tr>\r\n" +
+"          </tbody>\r\n" +
+"        </table>\r\n" +
+"      </div>\r\n" +
+"      <div class=\"acr-structure\" data-structure-id=\"1-1-column\" data-structure-name=\"richtext.structure_1_1_column\">\r\n" +
+"        <table class=\"structure__table\" align=\"center\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"750\">\r\n" +
+"          <tbody>\r\n" +
+"            <tr>\r\n" +
+"              <th class=\"colspan1\" data-name=\"Drag a new component here.\">\r\n" +
+"                <div class=\"acr-fragment acr-component divider-container\" data-component-id=\"divider\" data-component-name=\"richtext.component_divider\" style=\"text-align: center;\" contenteditable=\"false\">\r\n" +
+"                  <!--[if mso]><table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\"><tr><td style=\"text-align: center; border-top: 1px solid rgb(28, 28, 28);\"><![endif]-->\r\n" +
+"                  <div style=\"border-top: 1px solid #1c1c1c; width: 100%; display: inline-block;\"></div>\r\n" +
+"                  <!--[if mso]></td></tr></table><![endif]-->\r\n" +
+"                </div>\r\n" +
+"              </th>\r\n" +
+"            </tr>\r\n" +
+"          </tbody>\r\n" +
+"        </table>\r\n" +
+"      </div>\r\n" +
+"      <div class=\"acr-structure\" data-structure-id=\"1-1-column\" data-structure-name=\"richtext.structure_1_1_column\">\r\n" +
+"        <table class=\"structure__table\" align=\"center\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"750\">\r\n" +
+"          <tbody>\r\n" +
+"            <tr>\r\n" +
+"              <th class=\"colspan1\" data-name=\"Drag a new component here.\">\r\n" +
+"                       <div class=\"acr-fragment acr-component\" data-component-id=\"text\" data-component-name=\"richtext.component_text\" style=\"padding-top: 4px; padding-bottom: 4px; color: #676969;\" contenteditable=\"false\">\r\n" +
+"                  <!--[if mso]><table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\"><tr><td style=\"padding-top: 4px; padding-bottom: 4px; color: rgb(103, 105, 105);\"><![endif]-->\r\n" +
+"                  <div class=\"text-container\" contenteditable=\"true\">\r\n" +
+"                    <p title=\"\" alt=\"\" align=\"\" style=\"text-align: center;\"><span title=\"\" alt=\"\" align=\"\" style=\"font-size: 10px;\">©<span><b title=\"\" alt=\"\" align=\"\"> UNILEVER "+ date.getFullYear() +"</b></span></span></p>\r\n" +
+"                    <p title=\"\" alt=\"\" align=\"\" style=\"text-align: center;\"></p>\r\n" +
+"                  </div>\r\n" +
+"                  <!--[if mso]></td></tr></table><![endif]-->\r\n" +
+"                </div>\r\n" +
+"              </th>\r\n" +
+"            </tr>\r\n" +
+"          </tbody>\r\n" +
+"        </table>\r\n" +
+"      </div>\r\n" +
+"      <div class=\"acr-structure\" data-structure-id=\"1-1-column\" data-structure-name=\"richtext.structure_1_1_column\">\r\n" +
+"        <table class=\"structure__table\" align=\"center\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"750\">\r\n" +
+"          <tbody>\r\n" +
+"            <tr>\r\n" +
+"              <th class=\"colspan1\" data-name=\"Drag a new component here.\">\r\n" +
+"                <div class=\"acr-fragment acr-component divider-container\" data-component-id=\"divider\" data-component-name=\"richtext.component_divider\" style=\"text-align: center;\" contenteditable=\"false\">\r\n" +
+"                  <!--[if mso]><table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\"><tr><td style=\"text-align: center; border-top: 1px solid rgb(28, 28, 28);\"><![endif]-->\r\n" +
+"                  <div style=\"border-top: 1px solid #1c1c1c; width: 100%; display: inline-block;\"></div>\r\n" +
+"                  <!--[if mso]></td></tr></table><![endif]-->\r\n" +
+"                </div>\r\n" +
+"              </th>\r\n" +
+"            </tr>\r\n" +
+"          </tbody>\r\n" +
+"        </table>\r\n" +
+"      </div>\r\n" +
+"      <div class=\"acr-structure\" data-structure-id=\"1-2-column-left\" data-structure-name=\"richtext.structure_1_2_column_left\">\r\n" +
+"        <table class=\"structure__table\" align=\"center\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"750\">\r\n" +
+"          <tbody>\r\n" +
+"            <tr>\r\n" +
+"              <th class=\"colspan33\" data-name=\"Drag a new component here.\">\r\n" +
+"                <div class=\"acr-fragment acr-component image-container\" data-component-id=\"image\" style=\"width: 100%; text-align: center;\" data-component-name=\"richtext.component_image\" data-thumbnail=\"\" contenteditable=\"false\">\r\n" +
+"                  <!--[if mso]><table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\"><tr><td style=\"text-align: center; border-width: 0px; border-style: none;\"><![endif]-->\r\n" +
+"                  <img src=\"https://www.unileverbrandcentre.com/readimage.aspx/asset.png?custom=size%3a206x70&amp;pubid=ZmmKaasOvVX4GkvUwC6vqQ&amp;quality=6\" width=\"47\" style=\"width: 19%; border-width: 0px; border-style: none;\" title=\"\" alt=\"\" align=\"\">\r\n" +
+"                  <!--[if mso]></td></tr></table><![endif]-->\r\n" +
+"                </div>\r\n" +
+"              </th>\r\n" +
+"              <th class=\"colspan66\" data-name=\"Drag a new component here.\">\r\n" +
+"                <div class=\"acr-fragment acr-component\" data-component-id=\"text\" data-component-name=\"richtext.component_text\" style=\"border-width: 0px; border-style: none; border-radius: 5px; font-family: Helvetica, Arial, sans-serif; color: #676969;\" contenteditable=\"false\">\r\n" +
+"                  <!--[if mso]><table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\"><tr><td style=\"border-width: 0px; border-style: none; font-family: Helvetica, Arial, sans-serif; color: rgb(103, 105, 105);\"><![endif]-->\r\n" +
+"                  <div class=\"text-container\" contenteditable=\"true\">\r\n" +
+"                    <p title=\"\" alt=\"\" align=\"\"><span style=\"font-size: 8px;\">Add&nbsp;<span class=\"acr-block nl-dce-fragment nl-dce-done\" data-nl-label=\"Email address of default sender (DefaultSenderAddress)\" data-nl-name=\"DefaultSenderAddress\" contenteditable=\"false\">Email address of default sender</span>&nbsp;</span><span style=\"font-size: 8px;\">to your address book.</span></p>\r\n" +
+"                    <p title=\"\" alt=\"\" align=\"\"><span title=\"\" alt=\"\" align=\"\" style=\"font-size: 8px;\">Do you have questions? Visit our <a class=\"arc-link\" data-id=\"al15631842993427c82ba\" data-nl-type=\"externalLink\" href=\"#\" style=\"font-size: 8px; color: #0090c1;\" data-nl-lnkep-perso-attr-href=\""+ brandArray[22]  +"\">PrivacyNotice </a><br><span style=\"font-size: 9px;\"><span style=\"font-size: 9px;\"><span style=\"font-size: 8px;\">Disclaimer: You are receiving this email because you have signed up to receive marketing from Unilever.</span></span></span></span></p>\r\n" +
+"                    <p title=\"\" alt=\"\" align=\"\"></p>\r\n" +
+"                    <p title=\"\" alt=\"\" align=\"\"><span style=\"font-size: 8px;\"><a class=\"arc-link\" data-id=\"al15665748526911360a4\" data-nl-type=\"externalLink\" href=\"#\" target=\"_blank\" _label=\"Opt-out\" _type=\"optout\"style=\"color: #0090c1;\" data-nl-lnkep-perso-attr-href=\""+ brandArray[25] +"&lt;span class=&quot;acr-field nl-dce-field&quot; data-nl-expr=&quot;/context/profile/cusHashedUnileverId&quot; data-nl-type=&quot;string&quot; contenteditable=&quot;false&quot;&gt;Hashed Unilever Id (cusHashedUnileverId)&lt;/span&gt;&validateToken\">Update Preferences</a></span></p>\r\n" +
+"                  </div>\r\n" +
+"                  <!--[if mso]></td></tr></table><![endif]-->\r\n" +
+"                </div>\r\n" +
+"              </th>\r\n" +
+"            </tr>\r\n" +
+"          </tbody>\r\n" +
+"        </table>\r\n" +
+"      </div>\r\n" +
+"    </div>\r\n" +
+"    <!--[if mso]></td></tr></table><![endif]-->\r\n" +
+"  </body>\r\n" +
+"</html>]]></html>\r\n" +
+"      </source>\r\n" +
+"      <orgUnit _operation=\"none\" name=\"all\"/>\r\n" +
+"      <geoUnit _operation=\"none\" name=\"all\"/>\r\n" +
+"    </contentFragment>\r\n" +
+"  </entities>\r\n";
+
+contentBlocks = contentBlocks + sb;
+
+}
+
+// STUB FOR OTP SMS BLOCKED UNTIL SMS HAS BEEN RESOLVED
+function buildOTPtransactionalSMS(brandArray){
+
+  for(i=0 ; i< distinctMarkets.length; i++){
+    var string="UPDATE THIS TO INCLUDE CORRECT XML AND INCLUDE distinctMarkets[i] to replace ISO code";
+    otpSMS=otpSMS+string;
+  }
+}
+
+
+// DOWNLOAD PACKAGE STUB
+//<button id="btDownloadPackage" onclick="downloadPackage('package.xml', document.getElementById('tbXMLPackage').value);" readonly="true">Download ACS package</button><br/>
+
+</script>
+
+<H1>Provide CSV content below:</H1>
+<button id="btInitSampleData" onclick="initSampleData();">Show me an example of XML data structure</button></br>
+<textarea name="" id="tbCSV" cols="100" rows="3"></textarea>
+
+<!-- Set to display:block in order to troubleshoot. Otherwise keep it to display:none -->
+<div style="display:none;">
+<H1>Step 1a - Convert to XML</H1>
+
+<button id="btConvertToXml" onclick="" readonly="true">Convert To XML</button><br/>
+
+<textarea name="" id="tbXML" cols="100" rows="3"></textarea>
+
+<H1>Step 1b - Generate ACS package</H1>
+XSD template: <br/>
+
+<br/>
+
+<button id="btConvertToPackage" onclick="" readonly="true">Generate ACS package</button><br/>
+
+
+<H1>Download ACS package</H1>
+ 
+<button id="btDownloadPackage" onclick="" readonly="true">Download ACS package</button><br/>
+
+</div>
+
+<H1> Select installer settings below: </H1>
+
+
+
+<form>
+    <input type="checkbox" id="brandPackageInstaller">
+     <label for="brandPackageInstaller"> Brand Installer</label>
+   
+   <br>
+    <input type="checkbox" id="contentBlockInstaller" >
+      <label for="OtpEmlInstaller"> Welcome email content blocks</label>           
+
+  <br>
+    <input type="checkbox" id="welcomeInstaller">
+      <label for="welcomeInstaller"> 1-2-1 Welcome program installer</label>
+
+  <br>
+    <input type="checkbox" id="transactionalEmlInstaller">
+      <label for="transactionalEmlInstaller"> Transactional email installer</label>
+ 
+  <br>
+    <input type="checkbox" id="transactionalSmsInstaller">
+      <label for="transactionalSmsInstaller"> Transactional SMS installer</label>    
+ 
+  <br>
+    <input type="checkbox" id="OtpEmlInstaller" >
+      <label for="OtpEmlInstaller"> OTP Transactional Email installer</label>   
+  <br>
+  <br>
+  <br>
+<button type="button" id="btGenDownloadPackage" onclick="iterateCsvData();" readonly="true">Download ACS package</button><br/>
+  <br>
+  <br>
+
+    <div style="border-style:solid; background-color:#DCDCDC; width:350px; margin:auto; float:left;">
+      <H3>Coming soon! </H3>
+        <input type="checkbox" id="OtpSmsInstaller" disabled>
+          <label for="OtpSmsInstaller"> OTP Transactional SMS installer required?</label>   
+
+    </div>     
+  <br>
+  <br>
+  <br>
+</form>
+
+<div id="acsPackage"></div>
