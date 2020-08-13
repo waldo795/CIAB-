@@ -182,7 +182,7 @@ function iterateCsvData(){
 // Stubs for OTP Setup
     (OtpEmlSetting == true) ? downloadPackage('CIAB_OTP_EMAIL_Installer.xml', returnOTPtransactionalEML()) : OtpEmlSetting=false;
     (OtpSmsSetting == true) ? downloadPackage('CIAB_OTP_SMS_Installer.xml',    returnOTPtransactionalSMS()) : OtpSmsSetting=false;    
-    (contentBlockSetting == true) ? downloadPackage('CIAB_ContentBlock_(' + distinctMarkets[].toString() +'_Installer.xml',    returnContentBlockXml()) : contentBlockSetting=false;  
+    (contentBlockSetting == true) ? downloadPackage('CIAB_ContentBlock_(' + distinctMarkets.toString() +'_Installer.xml',    returnContentBlockXml()) : contentBlockSetting=false;  
    
 }
 
