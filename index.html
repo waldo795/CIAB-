@@ -56,6 +56,7 @@ var OtpSmsSetting   = "";
 var OtpEmlSetting   = "";
 var contentBlockSetting = "";
 var distinctMarkets = [];
+var distinctLanguage = [];
 
 
 
@@ -182,7 +183,7 @@ function iterateCsvData(){
 // Stubs for OTP Setup
     (OtpEmlSetting == true) ? downloadPackage('CIAB_OTP_EMAIL_Installer.xml', returnOTPtransactionalEML()) : OtpEmlSetting=false;
     (OtpSmsSetting == true) ? downloadPackage('CIAB_OTP_SMS_Installer.xml',    returnOTPtransactionalSMS()) : OtpSmsSetting=false;    
-    (contentBlockSetting == true) ? downloadPackage('CIAB_ContentBlock_(' + distinctMarkets.toString() +'_Installer.xml',    returnContentBlockXml()) : contentBlockSetting=false;  
+    (contentBlockSetting == true) ? downloadPackage('CIAB_ContentBlock_(' + distinctLanguage.toString() +'_Installer.xml',    returnContentBlockXml()) : contentBlockSetting=false;  
    
 }
 
@@ -244,6 +245,7 @@ var s = "// 0 build date\r\n" +
 function generateDistinctList(brandArray){
 
   distinctMarkets.indexOf(brandArray[19]) === -1 ? distinctMarkets.push(brandArray[19]) : console.log("country already exists in array: "+ brandArray[19]);
+  distinctLanguage.indexOf(brandArray[13]) === -1 ? distinctMarkets.push(brandArray[13]) : console.log("language already exists in array: "+ brandArray[13]);
 
 }
 
