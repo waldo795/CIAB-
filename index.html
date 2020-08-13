@@ -152,7 +152,7 @@ function iterateCsvData(){
 
 
         generateDistinctList(brandArray);
-        buildContentBlocks(brandArray);
+        buildContentBlocks(brandArray,brandArray[13].toString());
         returnBrandingXML(brandArray);
         welcomePackageBody(brandArray);
         buildTransactionalEmailXml(brandArray);
@@ -182,7 +182,7 @@ function iterateCsvData(){
 // Stubs for OTP Setup
     (OtpEmlSetting == true) ? downloadPackage('CIAB_OTP_EMAIL_Installer.xml', returnOTPtransactionalEML()) : OtpEmlSetting=false;
     (OtpSmsSetting == true) ? downloadPackage('CIAB_OTP_SMS_Installer.xml',    returnOTPtransactionalSMS()) : OtpSmsSetting=false;    
-    (contentBlockSetting == true) ? downloadPackage('CIAB_ContentBlock_Installer.xml',    returnContentBlockXml()) : contentBlockSetting=false;  
+    (contentBlockSetting == true) ? downloadPackage('CIAB_ContentBlock_(' + distinctMarkets[].toString() +'_Installer.xml',    returnContentBlockXml()) : contentBlockSetting=false;  
    
 }
 
@@ -444,7 +444,7 @@ function getTypology(text){
 
 function welcomePackageBody(brandArray){
 
- // PROGRAM BOILERPLATE
+
 var sb = "  <entities schema=\"nms:program\">\r\n" +
 "    <program builtIn=\"0\" end=\"2020-10-06\" isTemplate=\"0\" label=\""+ brandArray[15]+ "\"\r\n" +
 "             name=\""+ brandArray[15]+ "\" sourceId=\"0\" start=\"2020-04-07\" thumbnail=\"/nl/img/thumbnails/defaultProgram.png\">\r\n" +
@@ -1899,7 +1899,9 @@ for(i=0 ; i< distinctMarkets.length; i++){
 
 
 // Function to parameterise welcome email content blocks
-function buildContentBlocks(brandArray){
+function buildContentBlocks(brandArray, language){
+
+  if(language = "EN"){
 
   var sb = "  <entities schema=\"nms:contentFragment\">\r\n" +
 "    <contentFragment builtIn=\"0\" contentType=\"1\" label=\"cusWelcomeTemplateBlock"+brandArray[14]+"\" name=\"cusWelcomeTemplateBlock"+brandArray[14]+"\"\r\n" +
@@ -2086,6 +2088,198 @@ function buildContentBlocks(brandArray){
 "      <geoUnit _operation=\"none\" name=\"all\"/>\r\n" +
 "    </contentFragment>\r\n" +
 "  </entities>\r\n";
+}
+
+else if(language = "AR"){
+
+  // INSERT CODE HERE
+  var sb = "  <entities schema=\"nms:contentFragment\">\r\n" +
+"    <contentFragment builtIn=\"0\" contentType=\"1\" label=\"cusWelcomeTemplateBlock"+brandArray[14]+"\" name=\"cusWelcomeTemplateBlock"+brandArray[14]+"\"\r\n" +
+"                     targetResource=\"\" thumbnail=\"\">\r\n" +
+"      <source dependOnFormat=\"true\" noEscaping=\"false\">\r\n" +
+"        <html><![CDATA[    <div class=\"acr-container\">\r\n" +
+"      <div class=\"acr-structure\" data-structure-id=\"1-1-column\" data-structure-name=\"richtext.structure_1_1_column\">\r\n" +
+"        <!--[if mso]><table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\"><tr><td style=\"\"><![endif]-->\r\n" +
+"        <table class=\"structure__table\" align=\"center\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"750\">\r\n" +
+"          <tbody>\r\n" +
+"            <tr>\r\n" +
+"              <th class=\"colspan1\" data-name=\"Drag a new component here.\">\r\n" +
+"                <!--[if mso]><table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\"><tr><td style=\"padding-top: 20px; padding-bottom: 20px;\"><![endif]-->\r\n" +
+"                <div class=\"acr-fragment acr-component\" data-component-id=\"text\" data-component-name=\"richtext.component_text\" style=\"margin-bottom: 20px; margin-top: 20px; font-family: Helvetica;\" contenteditable=\"false\">\r\n" +
+"                  <!--[if mso]><table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\"><tr><td style=\"font-family: Helvetica;\"><![endif]-->\r\n" +
+"                  <div class=\"text-container\" contenteditable=\"false\">\r\n" +
+"                    <p title=\"\" alt=\"\" align=\"\"><span style=\"font-size: 9px;\">This e-mail newsletter contains tracking cookies.&nbsp; If you click within this email (e.g. links/buttons) you agree that we track your internet behaviour on our and other websites and that we tailor advertisements to your interests and profile. See our <a href=\""+ brandArray[23]+"\" style=\"color: #676969;\">cookie</a> and&nbsp;</span><span style=\"font-size: 9px;\"><a href=\""+ brandArray[22]+ "\" style=\"color: #676969;\">privacy policy</a>&nbsp;for more information.</span></p>\r\n" +
+"                    <p title=\"\" alt=\"\" align=\"\"></p>\r\n" +
+"                  </div>\r\n" +
+"                  <!--[if mso]></td></tr></table><![endif]-->\r\n" +
+"                </div>\r\n" +
+"                <!--[if mso]></td></tr></table><![endif]-->\r\n" +
+"              </th>\r\n" +
+"            </tr>\r\n" +
+"          </tbody>\r\n" +
+"        </table>\r\n" +
+"        <!--[if mso]></td></tr></table><![endif]-->\r\n" +
+"      </div>\r\n" +
+"      <div class=\"acr-structure\" data-structure-id=\"1-1-column\" data-structure-name=\"richtext.structure_1_1_column\">\r\n" +
+"        <table class=\"structure__table\" align=\"center\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"750\">\r\n" +
+"          <tbody>\r\n" +
+"            <tr>\r\n" +
+"              <th class=\"colspan1\" data-name=\"Drag a new component here.\">\r\n" +
+"                <div class=\"acr-fragment acr-component\" data-component-id=\"text\" data-component-name=\"richtext.component_text\" style=\"font-family: Helvetica;\" contenteditable=\"false\">\r\n" +
+"                  <!--[if mso]><table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\"><tr><td style=\"font-family: Helvetica;\"><![endif]-->\r\n" +
+"                  <div class=\"text-container\" contenteditable=\"false\">\r\n" +
+"                    <p title=\"\" alt=\"\" align=\"\"><span title=\"\" alt=\"\" align=\"\" style=\"font-size: 9px;\">Having trouble viewing this email?&nbsp;<a href=\"<%@ include fragment=&quot;MirrorPageUrl&quot; %>\" target=\"_blank\" _label=\"Mirror page\" _type=\"mirrorPage\" style=\"font-size: 8px; color: #676969;\">Click Here.</a></p></span></p>\r\n" +
+"                    <p title=\"\" alt=\"\" align=\"\"></p>\r\n" +
+"                  </div>\r\n" +
+"                  <!--[if mso]></td></tr></table><![endif]-->\r\n" +
+"                </div>\r\n" +
+"              </th>\r\n" +
+"            </tr>\r\n" +
+"          </tbody>\r\n" +
+"        </table>\r\n" +
+"      </div>\r\n" +
+"      <div class=\"acr-structure\" data-structure-id=\"1-1-column\" data-structure-name=\"richtext.structure_1_1_column\">\r\n" +
+"        <table class=\"structure__table\" align=\"center\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"750\" style=\"border-color: #f9f9f9;\">\r\n" +
+"          <tbody>\r\n" +
+"            <tr>\r\n" +
+"              <th class=\"colspan1\">\r\n" +
+"                <div class=\"acr-fragment acr-component image-container\" data-component-id=\"image\" style=\"width: 100%; text-align: center;\" contenteditable=\"false\">\r\n" +
+"                  <!--[if mso]><table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\"><tr><td style=\"text-align: center;\"><![endif]-->\r\n" +
+"                  <a class=\"arc-link\" data-id=\"al157468397886171ddf6\" data-nl-type=\"externalLink\" href=\"#\" data-nl-lnkep-perso-attr-href=\""+ brandArray[20]+"\"><img src=\""+  brandArray[2]+"\" width=\"375\" style=\"width: 50%;\" title=\""+ brandArray[21] + " " + brandArray[19] +"\" alt=\""+ brandArray[21] + " " + brandArray[19] +"\" data-nl-imgep-perso-attr-alt=\""+ brandArray[21] + " " + brandArray[19] +"\"></a>\r\n" +
+"                  <!--[if mso]></td></tr></table><![endif]-->\r\n" +
+"                </div>\r\n" +
+"              </th>\r\n" +
+"            </tr>\r\n" +
+"          </tbody>\r\n" +
+"        </table>\r\n" +
+"      </div>\r\n" +
+"      <div class=\"acr-structure\" data-structure-id=\"1-1-column\" data-structure-name=\"richtext.structure_1_1_column\">\r\n" +
+"        <table class=\"structure__table\" align=\"center\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"750\">\r\n" +
+"          <tbody>\r\n" +
+"            <tr>\r\n" +
+"              <th class=\"colspan1\" data-name=\"Drag a new component here.\">\r\n" +
+"                <div class=\"acr-fragment acr-component\" data-component-id=\"text\" data-component-name=\"richtext.component_text\" style=\"color: #585656; font-family: Helvetica; line-height: 32px; padding-top: 5px;\" contenteditable=\"false\">\r\n" +
+"                  <!--[if mso]><table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\"><tr><td style=\"color: rgb(88, 86, 86); font-family: Helvetica; line-height: 32px; padding-top: 5px;\"><![endif]-->\r\n" +
+"                  <div class=\"text-container\" contenteditable=\"false\">\r\n" +
+"                    <h1 style=\"text-align: center;\">Thank you for signing up to hear from "+brandArray[21]+"</h1>\r\n" +
+"                    <p title=\"\" alt=\"\" align=\"\" style=\"text-align: center;\"></p>\r\n" +
+"                    <h2></h2>\r\n" +
+"                    <p></p>\r\n" +
+"                    <p title=\"\" alt=\"\" align=\"\"></p>\r\n" +
+"                    <p title=\"\" alt=\"\" align=\"\"></p>\r\n" +
+"                  </div>\r\n" +
+"                  <!--[if mso]></td></tr></table><![endif]-->\r\n" +
+"                </div>\r\n" +
+"                <div class=\"acr-fragment acr-component\" data-component-id=\"text\" data-component-name=\"richtext.component_text\" style=\"color: #585656; font-family: Helvetica; line-height: 23px; letter-spacing: 0.406px; padding-top: 0px; padding-bottom: 0px;\" contenteditable=\"false\">\r\n" +
+"                  <!--[if mso]><table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\"><tr><td style=\"color: rgb(88, 86, 86); font-family: Helvetica; line-height: 23px; padding-top: 0px; padding-bottom: 0px;\"><![endif]-->\r\n" +
+"                  <div class=\"text-container\" contenteditable=\"false\">\r\n" +
+"                    <div style=\"text-align: center;\">You've taken the first step to making sure you're in the know! By Signing Up, you'll be the first to hear about exciting new products, great promotions and competitions from us.<br><br>We'll be in touch soon, but in the meantime, visit our website for interesting articles, tips and tricks.</div>\r\n" +
+"                    <p title=\"\" alt=\"\" align=\"\" style=\"text-align: center;\"></p>\r\n" +
+"                    <h2></h2>\r\n" +
+"                    <p></p>\r\n" +
+"                    <p title=\"\" alt=\"\" align=\"\"></p>\r\n" +
+"                    <p title=\"\" alt=\"\" align=\"\"></p>\r\n" +
+"                  </div>\r\n" +
+"                  <!--[if mso]></td></tr></table><![endif]-->\r\n" +
+"                </div>\r\n" +
+"              </th>\r\n" +
+"            </tr>\r\n" +
+"          </tbody>\r\n" +
+"        </table>\r\n" +
+"      </div>\r\n" +
+"      <div class=\"acr-structure\" data-structure-id=\"1-1-column\" data-structure-name=\"richtext.structure_1_1_column\">\r\n" +
+"        <table class=\"structure__table\" align=\"center\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"750\">\r\n" +
+"          <tbody>\r\n" +
+"            <tr>\r\n" +
+"              <th class=\"colspan1\">\r\n" +
+"                <div class=\"acr-fragment acr-component\" data-component-id=\"button\" style=\"width: 100%; text-align: center; margin-top: 20px; margin-bottom: 20px;\" contenteditable=\"false\">\r\n" +
+"                  <!--[if mso]><table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"200\"><tr><td style=\"text-align: center; border: 2px solid rgb(39, 39, 39); color: rgb(255, 255, 255); background-color: rgb(26, 162, 149); line-height: 35px; height: 35px;\"><![endif]-->\r\n" +
+"                  <div class=\"button-container\" style=\"width: 200px; text-align: center; margin: 0px auto; max-width: 100%; display: inline-block; border: 2px solid #272727; border-radius: 15px; height: 35px; line-height: 35px; color: #ffffff; background-color: #000000; text-transform: uppercase;\"><a href=\""+ brandArray[20] +"\" style=\"color: #ffffff;\" data-id=\"al15740947065807aaac5\" data-nl-type=\"externalLink\" contenteditable=\"false\">Visit the website</a></div>\r\n" +
+"                  <!--[if mso]></td></tr></table><![endif]-->\r\n" +
+"                </div>\r\n" +
+"              </th>\r\n" +
+"            </tr>\r\n" +
+"          </tbody>\r\n" +
+"        </table>\r\n" +
+"      </div>\r\n" +
+"      <div class=\"acr-structure\" data-structure-id=\"1-1-column\" data-structure-name=\"richtext.structure_1_1_column\">\r\n" +
+"        <table class=\"structure__table\" align=\"center\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"750\">\r\n" +
+"          <tbody>\r\n" +
+"            <tr>\r\n" +
+"              <th class=\"colspan1\" data-name=\"Drag a new component here.\">\r\n" +
+"                <div class=\"acr-fragment acr-component divider-container\" data-component-id=\"divider\" data-component-name=\"richtext.component_divider\" style=\"text-align: center;\" contenteditable=\"false\">\r\n" +
+"                  <!--[if mso]><table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\"><tr><td style=\"text-align: center; border-top: 1px solid rgb(28, 28, 28);\"><![endif]-->\r\n" +
+"                  <div style=\"border-top: 1px solid #1c1c1c; width: 100%; display: inline-block;\"></div>\r\n" +
+"                  <!--[if mso]></td></tr></table><![endif]-->\r\n" +
+"                </div>\r\n" +
+"              </th>\r\n" +
+"            </tr>\r\n" +
+"          </tbody>\r\n" +
+"        </table>\r\n" +
+"      </div>\r\n" +
+"      <div class=\"acr-structure\" data-structure-id=\"1-1-column\" data-structure-name=\"richtext.structure_1_1_column\">\r\n" +
+"        <table class=\"structure__table\" align=\"center\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"750\">\r\n" +
+"          <tbody>\r\n" +
+"            <tr>\r\n" +
+"              <th class=\"colspan1\" data-name=\"Drag a new component here.\">\r\n" +
+"                       <div class=\"acr-fragment acr-component\" data-component-id=\"text\" data-component-name=\"richtext.component_text\" style=\"padding-top: 4px; padding-bottom: 4px; color: #676969;\" contenteditable=\"false\">\r\n" +
+"                  <!--[if mso]><table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\"><tr><td style=\"padding-top: 4px; padding-bottom: 4px; color: rgb(103, 105, 105);\"><![endif]-->\r\n" +
+"                  <div class=\"text-container\" contenteditable=\"false\">\r\n" +
+"                    <p title=\"\" alt=\"\" align=\"\" style=\"text-align: center;\"><span title=\"\" alt=\"\" align=\"\" style=\"font-size: 10px;\">©<span><b title=\"\" alt=\"\" align=\"\"> UNILEVER "+ date.getFullYear() + "</b></span></span></p>\r\n" +
+"                    <p title=\"\" alt=\"\" align=\"\" style=\"text-align: center;\"></p>\r\n" +
+"                  </div>\r\n" +
+"                  <!--[if mso]></td></tr></table><![endif]-->\r\n" +
+"                </div>\r\n" +
+"              </th>\r\n" +
+"            </tr>\r\n" +
+"          </tbody>\r\n" +
+"        </table>\r\n" +
+"      </div>\r\n" +
+"      <div class=\"acr-structure\" data-structure-id=\"1-1-column\" data-structure-name=\"richtext.structure_1_1_column\">\r\n" +
+"        <table class=\"structure__table\" align=\"center\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"750\">\r\n" +
+"          <tbody>\r\n" +
+"            <tr>\r\n" +
+"              <th class=\"colspan1\" data-name=\"Drag a new component here.\">\r\n" +
+"                <div class=\"acr-fragment acr-component divider-container\" data-component-id=\"divider\" data-component-name=\"richtext.component_divider\" style=\"text-align: center;\" contenteditable=\"false\">\r\n" +
+"                  <!--[if mso]><table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\"><tr><td style=\"text-align: center; border-top: 1px solid rgb(28, 28, 28);\"><![endif]-->\r\n" +
+"                  <div style=\"border-top: 1px solid #1c1c1c; width: 100%; display: inline-block;\"></div>\r\n" +
+"                  <!--[if mso]></td></tr></table><![endif]-->\r\n" +
+"                </div>\r\n" +
+"              </th>\r\n" +
+"            </tr>\r\n" +
+"          </tbody>\r\n" +
+"        </table>\r\n" +
+"      </div>\r\n" +
+"      <div class=\"acr-structure\" data-structure-id=\"1-2-column-left\" data-structure-name=\"richtext.structure_1_2_column_left\">\r\n" +
+"        <table class=\"structure__table\" align=\"center\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"750\">\r\n" +
+"          <tbody>\r\n" +
+"            <tr>\r\n" +
+"              <th class=\"colspan33\" data-name=\"Drag a new component here.\">\r\n" +
+"                <div class=\"acr-fragment acr-component image-container\" data-component-id=\"image\" style=\"width: 100%; text-align: center;\" data-component-name=\"richtext.component_image\" data-thumbnail=\"\" contenteditable=\"false\">\r\n" +
+"                  <img src=\"https://www.unileverbrandcentre.com/readimage.aspx/asset.png?custom=size%3a206x70&amp;pubid=ZmmKaasOvVX4GkvUwC6vqQ&amp;quality=6\" width=\"47\" style=\"width: 19%; border-width: 0px; border-style: none;\" title=\"\" alt=\"\" align=\"\">\r\n" +
+"                </div>\r\n" +
+"              </th>\r\n" +
+"              <th class=\"colspan66\" data-name=\"Drag a new component here.\">\r\n" +
+"                <div class=\"acr-fragment acr-component\" data-component-id=\"text\" data-component-name=\"richtext.component_text\" style=\"border-width: 0px; border-style: none; border-radius: 5px; font-family: Helvetica, Arial, sans-serif; color: #676969;\" contenteditable=\"false\">\r\n" +
+"                  <div class=\"text-container\" contenteditable=\"false\">\r\n" +
+"                    <p title=\"\" alt=\"\" align=\"\"><span style=\"font-size: 8px;\">Add&nbsp;<span class=\"acr-block nl-dce-fragment nl-dce-done\" data-nl-label=\"Email address of default sender (DefaultSenderAddress)\" data-nl-name=\"DefaultSenderAddress\" contenteditable=\"false\">Email address of default sender</span>&nbsp;</span><span style=\"font-size: 8px;\">to your address book.</span></p>\r\n" +
+"                    <p title=\"\" alt=\"\" align=\"\"><span title=\"\" alt=\"\" align=\"\" style=\"font-size: 8px;\">Do you have questions? Visit our <a href=\""+ brandArray[22]  +"\" style=\"font-size: 8px; color: #676969;\">Privacy Notice </a><br><span style=\"font-size: 9px;\"><span style=\"font-size: 9px;\"><span style=\"font-size: 8px;\">Disclaimer: You are receiving this email because you have signed up to receive marketing from Unilever.</span></span></span></span></p>\r\n" +
+"                    <p title=\"\" alt=\"\" align=\"\"></p>\r\n" +
+"                    <p title=\"\" alt=\"\" align=\"\"><span style=\"font-size: 8px;\"><a href=\""+ brandArray[25] +"?ulidh=<%= escapeUrl(context.profile.cusHashedUnileverId)%>&validateToken\" target=\"_blank\" _label=\"Opt-out\" _type=\"optout\" style=\"font-size: 8px; color: #676969;\">Update Preferences</a></span></p>\r\n" +
+"                  </div>\r\n" +
+"                </div>\r\n" +  
+"              </th>\r\n" +
+"            </tr>\r\n" +
+"          </tbody>\r\n" +
+"        </table>\r\n" +
+"      </div>]]></html>\r\n"+
+"      </source>\r\n" +
+"      <orgUnit _operation=\"none\" name=\"all\"/>\r\n" +
+"      <geoUnit _operation=\"none\" name=\"all\"/>\r\n" +
+"    </contentFragment>\r\n" +
+"  </entities>\r\n";
+
+}
 
 
 contentBlocks = contentBlocks + sb;
