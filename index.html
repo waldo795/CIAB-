@@ -155,7 +155,7 @@ function iterateCsvData(){
         generateDistinctList(brandArray);
         buildContentBlocks(brandArray,brandArray[13].toString());
         returnBrandingXML(brandArray);
-        welcomePackageBody(brandArray);
+        welcomePackageBody(brandArray, brandArray[13].toString());
         buildTransactionalEmailXml(brandArray);
         buildTransactionalSMSXml(brandArray);
         
@@ -444,7 +444,7 @@ function getTypology(text){
   // 18 ISO2 Market Code
 
 
-function welcomePackageBody(brandArray){
+function welcomePackageBody(brandArray, language){
 
 
 var sb = "  <entities schema=\"nms:program\">\r\n" +
