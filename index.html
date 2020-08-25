@@ -399,18 +399,22 @@ function getTypology(text){
   var marketList =
   {
   "DE":"dachAffinity",
-  "NL":"default_global",
-  "BE":"default_global",
-  "LU":"default_global",
   "BR":"default_br",
   "UK":"default_uk",
   "GB":"default_uk",
-  "MX":"typo_default_mx",
-  "CL":"typo_default_cl"
+  "IN":"india",
+  "ZA":"default_za",
+  "TR":"default_tr",
+  "ES":"default_es",
+  "IT":"italy",
+  "PK":"default_pk",
+  "LK":"default_apac6",
+  "BD":"default_apac6"
+
   };
 
     // CHECK FOR CUSTOM TYPOLOGY RULES WITHIN THESE MARKETS
-    if(text == "DE" || text =="NL" || text == "BE" || text == "LU" || text == "BR" || text == "MX" || text == "CL"){
+    if(text == "DE" || text =="BR" || text == "UK" || text == "GB" || text == "IN" || text == "ZA" || text == "TR" || text == "ES"|| text == "IT"|| text == "PK"|| text == "LK"|| text == "BD"){
       typology = marketList[text];
 
     } else {
