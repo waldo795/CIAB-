@@ -871,12 +871,19 @@ var sb = "  <entities schema=\"nms:program\">\r\n" +
 "          <scenario aggregationPeriod=\"1\" validityDuration=\"432000\" webValidityDuration=\"5184000\"/>\r\n" +
 "          <fcpParameters addFormatInPrefix=\"true\" fcpMailFormat=\"normal\" fcpVariantSel=\"auto\"\r\n" +
 "                         labelPrefix=\"Proof\" useSpecificOutputFile=\"false\"/>\r\n" +
-"          <mailParameters mirrorPagePolicy=\"default\" needMirrorPage=\"0\">\r\n" +
-"            <senderAddress><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultSenderAddress\" contenteditable=\"false\">Email address of default sender</span>]]></senderAddress>\r\n" +
-"            <replyAddress><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultReplyAddress\" contenteditable=\"false\">Default reply-to email address</span>]]></replyAddress>\r\n" +
-"            <replyName><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultReplyName\" contenteditable=\"false\">Name of default reply-to email address</span>]]></replyName>\r\n" +
-"            <errorAddress><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultErrorAddress\" contenteditable=\"false\">Default error email address</span>]]></errorAddress>\r\n" +
-"          </mailParameters>\r\n" +
+"            <mailParameters mirrorPagePolicy=\"default\" needMirrorPage=\"0\">\r\n" +
+
+      "        <senderAddress>"+ brandArray[8] +"</senderAddress>\r\n" +
+      "        <senderName>"+ brandArray[9] +"</senderName>\r\n" +
+      "        <replyAddress>"+ brandArray[10] +"</replyAddress>\r\n" +
+      "        <replyName>"+ brandArray[11] +"</replyName>\r\n" +
+      "        <errorAddress>"+ brandArray[12] +"</errorAddress>\r\n" +
+
+/*"            <senderAddress><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultSenderAddress\" contenteditable=\"false\">Email address of default sender</span>]]></senderAddress>\r\n" +
+"              <replyAddress><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultReplyAddress\" contenteditable=\"false\">Default reply-to email address</span>]]></replyAddress>\r\n" +
+"              <replyName><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultReplyName\" contenteditable=\"false\">Name of default reply-to email address</span>]]></replyName>\r\n" +
+"              <errorAddress><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultErrorAddress\" contenteditable=\"false\">Default error email address</span>]]></errorAddress>\r\n" +*/
+"            </mailParameters>\r\n" +
 "          <smsParameters maxSmsPerMessage=\"1\" mobileMsgType=\"0\" smsAppType=\"2\" smsMode=\"-1\"\r\n" +
 "                         smsPriority=\"0\"/>\r\n" +
 "          <pushnotificationParameters maxPushnotificationPayloadSize=\"4096\"/>\r\n" +
@@ -1115,12 +1122,19 @@ var sb = "  <entities schema=\"nms:program\">\r\n" +
 "        <scenario aggregationPeriod=\"1\" validityDuration=\"432000\" webValidityDuration=\"5184000\"/>\r\n" +
 "        <fcpParameters addFormatInPrefix=\"true\" fcpMailFormat=\"normal\" fcpVariantSel=\"auto\"\r\n" +
 "                       labelPrefix=\"Proof\" useSpecificOutputFile=\"false\"/>\r\n" +
-"        <mailParameters mirrorPagePolicy=\"default\" needMirrorPage=\"0\">\r\n" +
-"          <senderAddress><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultSenderAddress\" contenteditable=\"false\">Email address of default sender</span>]]></senderAddress>\r\n" +
-"          <replyAddress><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultReplyAddress\" contenteditable=\"false\">Default reply-to email address</span>]]></replyAddress>\r\n" +
-"          <replyName><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultReplyName\" contenteditable=\"false\">Name of default reply-to email address</span>]]></replyName>\r\n" +
-"          <errorAddress><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultErrorAddress\" contenteditable=\"false\">Default error email address</span>]]></errorAddress>\r\n" +
-"        </mailParameters>\r\n" +
+"            <mailParameters mirrorPagePolicy=\"default\" needMirrorPage=\"0\">\r\n" +
+
+      "        <senderAddress>"+ brandArray[8] +"</senderAddress>\r\n" +
+      "        <senderName>"+ brandArray[9] +"</senderName>\r\n" +
+      "        <replyAddress>"+ brandArray[10] +"</replyAddress>\r\n" +
+      "        <replyName>"+ brandArray[11] +"</replyName>\r\n" +
+      "        <errorAddress>"+ brandArray[12] +"</errorAddress>\r\n" +
+
+/*"            <senderAddress><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultSenderAddress\" contenteditable=\"false\">Email address of default sender</span>]]></senderAddress>\r\n" +
+"              <replyAddress><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultReplyAddress\" contenteditable=\"false\">Default reply-to email address</span>]]></replyAddress>\r\n" +
+"              <replyName><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultReplyName\" contenteditable=\"false\">Name of default reply-to email address</span>]]></replyName>\r\n" +
+"              <errorAddress><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultErrorAddress\" contenteditable=\"false\">Default error email address</span>]]></errorAddress>\r\n" +*/
+"            </mailParameters>\r\n" +
 "        <smsParameters maxSmsPerMessage=\"1\" mobileMsgType=\"0\" smsAppType=\"2\" smsMode=\"-1\"\r\n" +
 "                       smsPriority=\"0\"/>\r\n" +
 "        <pushnotificationParameters maxPushnotificationPayloadSize=\"4096\"/>\r\n" +
@@ -1241,12 +1255,19 @@ var sb = "  <entities schema=\"nms:program\">\r\n" +
 "      <scenario aggregationPeriod=\"1\" validityDuration=\"432000\" webValidityDuration=\"5184000\"/>\r\n" +
 "      <fcpParameters addFormatInPrefix=\"true\" fcpMailFormat=\"normal\" fcpVariantSel=\"auto\"\r\n" +
 "                     labelPrefix=\"Proof\" useSpecificOutputFile=\"false\"/>\r\n" +
-"      <mailParameters mirrorPagePolicy=\"default\" needMirrorPage=\"0\">\r\n" +
-"        <senderAddress><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultSenderAddress\" contenteditable=\"false\">Email address of default sender</span>]]></senderAddress>\r\n" +
-"        <replyAddress><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultReplyAddress\" contenteditable=\"false\">Default reply-to email address</span>]]></replyAddress>\r\n" +
-"        <replyName><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultReplyName\" contenteditable=\"false\">Name of default reply-to email address</span>]]></replyName>\r\n" +
-"        <errorAddress><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultErrorAddress\" contenteditable=\"false\">Default error email address</span>]]></errorAddress>\r\n" +
-"      </mailParameters>\r\n" +
+"            <mailParameters mirrorPagePolicy=\"default\" needMirrorPage=\"0\">\r\n" +
+
+      "        <senderAddress>"+ brandArray[8] +"</senderAddress>\r\n" +
+      "        <senderName>"+ brandArray[9] +"</senderName>\r\n" +
+      "        <replyAddress>"+ brandArray[10] +"</replyAddress>\r\n" +
+      "        <replyName>"+ brandArray[11] +"</replyName>\r\n" +
+      "        <errorAddress>"+ brandArray[12] +"</errorAddress>\r\n" +
+
+/*"            <senderAddress><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultSenderAddress\" contenteditable=\"false\">Email address of default sender</span>]]></senderAddress>\r\n" +
+"              <replyAddress><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultReplyAddress\" contenteditable=\"false\">Default reply-to email address</span>]]></replyAddress>\r\n" +
+"              <replyName><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultReplyName\" contenteditable=\"false\">Name of default reply-to email address</span>]]></replyName>\r\n" +
+"              <errorAddress><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultErrorAddress\" contenteditable=\"false\">Default error email address</span>]]></errorAddress>\r\n" +*/
+"            </mailParameters>\r\n" +
 "      <smsParameters maxSmsPerMessage=\"1\" mobileMsgType=\"0\" smsAppType=\"2\" smsMode=\"-1\"\r\n" +
 "                     smsPriority=\"0\"/>\r\n" +
 "      <pushnotificationParameters maxPushnotificationPayloadSize=\"4096\"/>\r\n" +
@@ -1440,12 +1461,19 @@ for(i=0 ; i< distinctMarkets.length; i++){
     "      </scenario>\r\n" +
     "      <fcpParameters addFormatInPrefix=\"true\" fcpMailFormat=\"normal\" fcpVariantSel=\"auto\"\r\n" +
     "                     labelPrefix=\"Proof\" useSpecificOutputFile=\"false\"/>\r\n" +
-    "      <mailParameters mirrorPagePolicy=\"default\" needMirrorPage=\"0\">\r\n" +
-    "        <senderAddress><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultSenderAddress\" contenteditable=\"false\">Email address of default sender</span>]]></senderAddress>\r\n" +
-    "        <replyAddress><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultReplyAddress\" contenteditable=\"false\">Default reply-to email address</span>]]></replyAddress>\r\n" +
-    "        <replyName><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultReplyName\" contenteditable=\"false\">Name of default reply-to email address</span>]]></replyName>\r\n" +
-    "        <errorAddress><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultErrorAddress\" contenteditable=\"false\">Default error email address</span>]]></errorAddress>\r\n" +
-    "      </mailParameters>\r\n" +
+"            <mailParameters mirrorPagePolicy=\"default\" needMirrorPage=\"0\">\r\n" +
+
+      "        <senderAddress>"+ brandArray[8] +"</senderAddress>\r\n" +
+      "        <senderName>"+ brandArray[9] +"</senderName>\r\n" +
+      "        <replyAddress>"+ brandArray[10] +"</replyAddress>\r\n" +
+      "        <replyName>"+ brandArray[11] +"</replyName>\r\n" +
+      "        <errorAddress>"+ brandArray[12] +"</errorAddress>\r\n" +
+
+/*"            <senderAddress><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultSenderAddress\" contenteditable=\"false\">Email address of default sender</span>]]></senderAddress>\r\n" +
+"              <replyAddress><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultReplyAddress\" contenteditable=\"false\">Default reply-to email address</span>]]></replyAddress>\r\n" +
+"              <replyName><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultReplyName\" contenteditable=\"false\">Name of default reply-to email address</span>]]></replyName>\r\n" +
+"              <errorAddress><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultErrorAddress\" contenteditable=\"false\">Default error email address</span>]]></errorAddress>\r\n" +*/
+"            </mailParameters>\r\n" +
     "      <smsParameters maxSmsPerMessage=\"1\" mobileMsgType=\"0\" smsAppType=\"2\" smsMode=\"-1\"\r\n" +
     "                     smsPriority=\"0\"/>\r\n" +
     "      <pushnotificationParameters maxPushnotificationPayloadSize=\"4096\"/>\r\n" +
@@ -1757,10 +1785,11 @@ for(i=0 ; i< distinctMarkets.length; i++){
 "      <fcpParameters addFormatInPrefix=\"true\" fcpMailFormat=\"normal\" fcpVariantSel=\"auto\"\r\n" +
 "                     labelPrefix=\"Proof\" useSpecificOutputFile=\"false\"/>\r\n" +
 "      <mailParameters mirrorPagePolicy=\"default\" needMirrorPage=\"0\">\r\n" +
-"        <senderAddress>noreply@" + domain + "</senderAddress>\r\n" +
-"        <replyAddress>noreply@" + domain + "</replyAddress>\r\n" +
-"        <replyName>Unilever " + distinctMarkets[i] + "</replyName>\r\n" +
-"        <errorAddress>bounce@" + domain + "</errorAddress>\r\n" +
+      "        <senderAddress>"+ brandArray[8] +"</senderAddress>\r\n" +
+      "        <senderName>"+ brandArray[9] +"</senderName>\r\n" +
+      "        <replyAddress>"+ brandArray[10] +"</replyAddress>\r\n" +
+      "        <replyName>"+ brandArray[11] +"</replyName>\r\n" +
+      "        <errorAddress>"+ brandArray[12] +"</errorAddress>\r\n" +
 /*
 "        <senderAddress><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultSenderAddress\" contenteditable=\"false\">Email address of default sender</span>]]></senderAddress>\r\n" +
 "        <replyAddress><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultReplyAddress\" contenteditable=\"false\">Default reply-to email address</span>]]></replyAddress>\r\n" +
