@@ -62,11 +62,11 @@ var distinctLanguage = [];
 
 function  updateInstallerSettings(){
 
+  // Setting controls using UI Checkboxes
   (document.getElementById("brandPackageInstaller").checked == true) ?  brandSetting = true : brandSetting = false;
   (document.getElementById("welcomeInstaller").checked == true) ?  welcomeSetting = true : welcomeSetting = false;
   (document.getElementById("transactionalEmlInstaller").checked == true) ?  transactionalEmailSetting = true : transactionalEmailSetting = false;
   (document.getElementById("transactionalSmsInstaller").checked == true) ?  transactionalSmsSetting = true : transactionalSmsSetting = false;
-  // STUBS FOR OTP - Pending Go-Live
   (document.getElementById("OtpSmsInstaller").checked == true) ?  OtpSmsSetting = true : OtpSmsSetting = false;
   (document.getElementById("OtpEmlInstaller").checked == true) ?  OtpEmlSetting = true : OtpEmlSetting = false;
   (document.getElementById("contentBlockInstaller").checked == true) ?  contentBlockSetting = true : contentBlockSetting = false;
@@ -168,8 +168,8 @@ function iterateCsvData(){
 
 
       // NEEDS TO BE REFACTORED TO ENSURE IT'S WORKING CORRECTLY
-      // buildOTPtransactionalEML(brandArray);
-       // buildOTPtransactionalSMS(brandArray);
+       buildOTPtransactionalEML(brandArray);
+       buildOTPtransactionalSMS(brandArray);
 
    // }
 
@@ -1469,10 +1469,7 @@ for(i=0 ; i< distinctMarkets.length; i++){
       "        <replyName>"+ brandArray[11] +"</replyName>\r\n" +
       "        <errorAddress>"+ brandArray[12] +"</errorAddress>\r\n" +
 
-/*"            <senderAddress><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultSenderAddress\" contenteditable=\"false\">Email address of default sender</span>]]></senderAddress>\r\n" +
-"              <replyAddress><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultReplyAddress\" contenteditable=\"false\">Default reply-to email address</span>]]></replyAddress>\r\n" +
-"              <replyName><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultReplyName\" contenteditable=\"false\">Name of default reply-to email address</span>]]></replyName>\r\n" +
-"              <errorAddress><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultErrorAddress\" contenteditable=\"false\">Default error email address</span>]]></errorAddress>\r\n" +*/
+
 "            </mailParameters>\r\n" +
     "      <smsParameters maxSmsPerMessage=\"1\" mobileMsgType=\"0\" smsAppType=\"2\" smsMode=\"-1\"\r\n" +
     "                     smsPriority=\"0\"/>\r\n" +
@@ -1790,12 +1787,8 @@ for(i=0 ; i< distinctMarkets.length; i++){
       "        <replyAddress>"+ brandArray[10] +"</replyAddress>\r\n" +
       "        <replyName>"+ brandArray[11] +"</replyName>\r\n" +
       "        <errorAddress>"+ brandArray[12] +"</errorAddress>\r\n" +
-/*
-"        <senderAddress><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultSenderAddress\" contenteditable=\"false\">Email address of default sender</span>]]></senderAddress>\r\n" +
-"        <replyAddress><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultReplyAddress\" contenteditable=\"false\">Default reply-to email address</span>]]></replyAddress>\r\n" +
-"        <replyName><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultReplyName\" contenteditable=\"false\">Name of default reply-to email address</span>]]></replyName>\r\n" +
-"        <errorAddress><![CDATA[<span class=\"nl-dce-fragment nl-dce-done\" data-nl-name=\"DefaultErrorAddress\" contenteditable=\"false\">Default error email address</span>]]></errorAddress>\r\n" +
-*/"      </mailParameters>\r\n" +
+
+"      </mailParameters>\r\n" +
 "      <smsParameters maxSmsPerMessage=\"1\" mobileMsgType=\"0\" smsAppType=\"2\" smsMode=\"-1\"\r\n" +
 "                     smsPriority=\"0\"/>\r\n" +
 "      <pushnotificationParameters maxPushnotificationPayloadSize=\"4096\"/>\r\n" +
