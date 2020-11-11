@@ -150,6 +150,7 @@ function iterateCsvData(){
         brandArray[23]=d[9];
         brandArray[24]=getTypology(d[0].toString());
         brandArray[25]=d[5];
+        brandArray[26]=domain;
 
 
         generateDistinctList(brandArray);
@@ -1463,12 +1464,10 @@ for(i=0 ; i< distinctMarkets.length; i++){
     "                     labelPrefix=\"Proof\" useSpecificOutputFile=\"false\"/>\r\n" +
 "            <mailParameters mirrorPagePolicy=\"default\" needMirrorPage=\"0\">\r\n" +
 
-      "        <senderAddress>"+ brandArray[8] +"</senderAddress>\r\n" +
-      "        <senderName>"+ brandArray[9] +"</senderName>\r\n" +
-      "        <replyAddress>"+ brandArray[10] +"</replyAddress>\r\n" +
-      "        <replyName>"+ brandArray[11] +"</replyName>\r\n" +
-      "        <errorAddress>"+ brandArray[12] +"</errorAddress>\r\n" +
-
+"        <senderAddress><![CDATA[<span class=\"nl-dce-field nl-dce-done\" id=\"span160510074321132\" data-nl-expr=\"/context/rtEvent/ctx/brandName\" data-nl-type=\"string\" contenteditable=\"false\">brandName</span>@"+brandArray[26]+"]]></senderAddress>\r\n" +
+"        <replyAddress>"+ brandArray[10] +"</replyAddress>\r\n" +
+"        <replyName><![CDATA[<span class=\"nl-dce-field nl-dce-done\" id=\"span160510076365365\" data-nl-expr=\"/context/rtEvent/ctx/brandName\" data-nl-type=\"string\" contenteditable=\"false\">brandName</span>]]></replyName>\r\n" +
+"        <errorAddress>"+ brandArray[12] +"</errorAddress>\r\n" +
 
 "            </mailParameters>\r\n" +
     "      <smsParameters maxSmsPerMessage=\"1\" mobileMsgType=\"0\" smsAppType=\"2\" smsMode=\"-1\"\r\n" +
@@ -1782,12 +1781,18 @@ for(i=0 ; i< distinctMarkets.length; i++){
 "      <fcpParameters addFormatInPrefix=\"true\" fcpMailFormat=\"normal\" fcpVariantSel=\"auto\"\r\n" +
 "                     labelPrefix=\"Proof\" useSpecificOutputFile=\"false\"/>\r\n" +
 "      <mailParameters mirrorPagePolicy=\"default\" needMirrorPage=\"0\">\r\n" +
-      "        <senderAddress>"+ brandArray[8] +"</senderAddress>\r\n" +
+/*      "        <senderAddress>"+ brandArray[8] +"</senderAddress>\r\n" +
       "        <senderName>"+ brandArray[9] +"</senderName>\r\n" +
       "        <replyAddress>"+ brandArray[10] +"</replyAddress>\r\n" +
       "        <replyName>"+ brandArray[11] +"</replyName>\r\n" +
-      "        <errorAddress>"+ brandArray[12] +"</errorAddress>\r\n" +
+      "        <errorAddress>"+ brandArray[12] +"</errorAddress>\r\n" +*/
 
+
+
+"        <senderAddress><![CDATA[<span class=\"nl-dce-field nl-dce-done\" id=\"span160510074321132\" data-nl-expr=\"/context/rtEvent/ctx/brandName\" data-nl-type=\"string\" contenteditable=\"false\">brandName</span>@"+brandArray[26]+"]]></senderAddress>\r\n" +
+"        <replyAddress>"+ brandArray[10] +"</replyAddress>\r\n" +
+"        <replyName><![CDATA[<span class=\"nl-dce-field nl-dce-done\" id=\"span160510076365365\" data-nl-expr=\"/context/rtEvent/ctx/brandName\" data-nl-type=\"string\" contenteditable=\"false\">brandName</span>]]></replyName>\r\n" +
+"        <errorAddress>"+ brandArray[12] +"</errorAddress>\r\n" +
 "      </mailParameters>\r\n" +
 "      <smsParameters maxSmsPerMessage=\"1\" mobileMsgType=\"0\" smsAppType=\"2\" smsMode=\"-1\"\r\n" +
 "                     smsPriority=\"0\"/>\r\n" +
