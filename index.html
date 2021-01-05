@@ -2369,11 +2369,6 @@ function buildOTPtransactionalSMS(brandArray){
   <H1>Step 1a - Convert to XML</H1>
 
   <button id="btConvertToXml" onclick="" readonly="true">Convert To XML</button><br/>
-</div>
-
-<H1>Provide SMS Brand List:</H1>
-<button id="btInitSMSdata" onclick="initSmsData();">Show me an example of an SMS brand list</button></br>
-<textarea name="" id="tbSMS" cols="100" rows="3"></textarea>
 
 
 <button id="btConvertToXml" onclick="" readonly="true">Convert To XML</button><br/>
@@ -2425,13 +2420,14 @@ XSD template: <br/>
 
     <br>
     <input type="checkbox" id="smsConfigInstaller" >
-      <label for="smsConfigInstaller"> New SMS Config Package</label>   
+      <label for="smsConfigInstaller"> SMS Config Package</label>   
   <br>
   <br>
   <br>
 
 
-  <h2> Enter SMS Setup CSV Below </h2>
+  <h2> Enter SMS Brand list & Country codes</h2>
+  <button id="btInitSMSdata" onclick="initSmsData();">Show me an example of an SMS brand list</button></br>
   <textarea name="" id="tbSMS" cols="100" rows="3"></textarea>
 
 <button type="button" id="btGenDownloadPackage" onclick="iterateCsvData();" readonly="true">Download ACS package</button><br/>
