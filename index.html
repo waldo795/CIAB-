@@ -287,6 +287,9 @@ function buildSmsConfig(){
         // Do some stuff
         var d = rows[i].split(",");
 
+        console.log("rows: " + rows.toString());
+        console.log("i: " + i.toString());
+
         brandArray[0] = d[0];
         brandArray[1] = d[1];
         returnSmsConfig(brandArray);
