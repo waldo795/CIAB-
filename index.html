@@ -277,10 +277,10 @@ function generateDistinctList(brandArray){
 function buildSmsConfig(){
 
   // Iterate through SMS config dump text area and generate SMS Configuration
-  var csvData = document.getElementById('tbSMS').value;
-  var dataArr = csvData.split(/\r|\n/);
-  var rows = dataArr.splice(1,dataArr.length-1);
-  var brandArray = new Array();
+  var csvData1 = document.getElementById('tbSMS').value;
+  var dataArr1 = csvData1.split(/\r|\n/);
+  var rows = dataArr1.splice(1,dataArr1.length-1);
+  var brandArray1 = new Array();
   var i =0;
 
       while(i<rows.length){
@@ -290,9 +290,9 @@ function buildSmsConfig(){
         console.log("rows: " + rows.toString());
         console.log("i: " + i.toString());
 
-        brandArray[0] = d[0];
-        brandArray[1] = d[1];
-        returnSmsConfig(brandArray);
+        brandArray1[0] = d[0];
+        brandArray1[1] = d[1];
+        buildSmsConfig(brandArray1);
       }
 
 
@@ -301,7 +301,7 @@ function buildSmsConfig(){
 
 
 // Function used to append new brand config objects to the global sms config variable
-function returnSmsConfig(brandArray){
+function buildSmsConfig(brandArray){
 
 var string = "  <entities schema=\"nms:delivery\">\r\n" +
 "    <delivery FCP=\"0\" advanced=\"0\" analysisStep=\"0\" builtIn=\"0\" contentModTime=\"\"\r\n" +
