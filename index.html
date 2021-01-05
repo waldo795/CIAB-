@@ -297,7 +297,10 @@ function buildSmsConfig(){
         brandArray[1] = d[1];
         buildSmsConfigXML(brandArray);
 
-        if(i=3){break;}
+        if(i=3){
+          console.log("Breaking out now");
+          break;
+        }
       }
 
 
