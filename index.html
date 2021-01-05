@@ -15,7 +15,7 @@ function initSMSData() {
 "PONDS,TH\r\n"+
 "SURF,TH\r\n"+
 "DOVE,TH\r\n"+
-"PK,TH";
+"AXE,TH";
 }
 
 // UPDATE METHOD TO RETURN SERVER.NOW WITH UTC SET
@@ -131,6 +131,10 @@ function iterateCsvData(){
   var rows = dataArr.splice(1,dataArr.length-1);
   var brandArray = new Array();
   var i =0;
+
+  console.log("Main data: " + dataArr.toString());
+  console.log("Main rows: " + rows.toString());
+  console.log("Main rows length: " + rows.length);
 
       while(i<rows.length){
 
@@ -283,15 +287,14 @@ function buildSmsConfig(){
   var brandArray = new Array();
   var i =0;
 
-  console.log("before while: " +rows);
+  console.log("SMS data: " + dataArr.toString());
+  console.log("SMS rows: " + rows.toString());
+  console.log("SMS rows length: " + rows.length);
 
 
       while(i<rows.length){
         // Do some stuff
         var d = rows[i].split(",");
-
-        console.log("rows: " + rows);
-        console.log("i: " + i.toString());
 
         brandArray[0] = d[0];
         brandArray[1] = d[1];
