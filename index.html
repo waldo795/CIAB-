@@ -73,7 +73,7 @@ var distinctLanguage = [];
 
 
 
-function  updateInstallerSettings(){
+function updateInstallerSettings(){
 
   // Setting controls using UI Checkboxes
   (document.getElementById("brandPackageInstaller").checked == true) ?  brandSetting = true : brandSetting = false;
@@ -292,7 +292,7 @@ function buildSmsConfig(){
 
         brandArray1[0] = d[0];
         brandArray1[1] = d[1];
-        buildSmsConfig(brandArray1);
+        buildSmsConfigXML(brandArray1);
       }
 
 
@@ -301,7 +301,7 @@ function buildSmsConfig(){
 
 
 // Function used to append new brand config objects to the global sms config variable
-function buildSmsConfig(brandArray){
+function buildSmsConfigXML(brandArray){
 
 var string = "  <entities schema=\"nms:delivery\">\r\n" +
 "    <delivery FCP=\"0\" advanced=\"0\" analysisStep=\"0\" builtIn=\"0\" contentModTime=\"\"\r\n" +
