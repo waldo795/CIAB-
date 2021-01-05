@@ -283,6 +283,9 @@ function buildSmsConfig(){
   var brandArray = new Array();
   var i =0;
 
+  console.log("before while: " +rows.toString());
+
+
       while(i<rows.length){
         // Do some stuff
         var d = rows[i].split(",");
@@ -294,7 +297,7 @@ function buildSmsConfig(){
         brandArray[1] = d[1];
         buildSmsConfigXML(brandArray);
 
-        break;
+        if(i=3){break;}
       }
 
 
