@@ -132,10 +132,6 @@ function iterateCsvData(){
   var brandArray = new Array();
   var i =0;
 
-  console.log("Main data: " + dataArr.toString());
-  console.log("Main rows: " + rows.toString());
-  console.log("Main rows length: " + rows.length);
-
       while(i<rows.length){
 
         var d = rows[i].split(",");
@@ -170,16 +166,13 @@ function iterateCsvData(){
         brandArray[25]=d[5];
         brandArray[26]=domain;
 
-
         generateDistinctList(brandArray);
         buildContentBlocks(brandArray,brandArray[13].toString());
         returnBrandingXML(brandArray);
         welcomePackageBody(brandArray, brandArray[13].toString());
         buildTransactionalEmailXml(brandArray);
         buildTransactionalSMSXml(brandArray);
-
-
-        
+       
         //downloadPackage('varDump.txt',varDump(brandArray)); TOGGLE TO VIEW BRANDARRAY VALUES
 
         brandArray.length = 0;
@@ -287,10 +280,6 @@ function buildSmsConfig(){
   var brandArray = new Array();
   var i =0;
 
-  console.log("SMS data: " + dataArr.toString());
-  console.log("SMS rows: " + rows.toString());
-  console.log("SMS rows length: " + rows.length);
-
 
       while(i<rows.length){
         // Do some stuff
@@ -301,12 +290,6 @@ function buildSmsConfig(){
         buildSmsConfigXML(brandArray);
 
         i++;
-        console.log("here");
-
-        if(i==5){
-          console.log("Breaking out now");
-          break;
-        }
       }
 
 
