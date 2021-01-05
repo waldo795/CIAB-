@@ -55,6 +55,11 @@ var contentBlocks = "<?xml version='1.0'?>\r\n" +
 "         buildNumber=\"10586\" buildVersion=\"7.0\" label=\"CIAB_ContentBlock_Installer\" name=\"CIAB_ContentBlock_Installer\">\r\n";
 
 
+var SmsConfig = "<?xml version='1.0'?>\r\n" +
+"<package author=\"Mark Daniel (mdaniel@adobe.com)\" buildDate=\""+ buildDate +"\"\r\n" +
+"         buildNumber=\"10586\" buildVersion=\"7.0\" label=\"CIAB_SMS_CONFIG_Installer\" name=\"CIAB_SMS_CONFIG_Installer\">\r\n";
+
+
 var brandSetting              = "";
 var welcomeSetting            = "";
 var transactionalEmailSetting = "";
@@ -203,7 +208,7 @@ function iterateCsvData(){
 
 
 // SMS Config Package Setting
-     (smsConfigSetting == true) ? downloadPackage('CIAB_SMS_Config_Installer.xml',    returnContentBlockXml()) : smsConfigSetting=false;  
+     (smsConfigSetting == true) ? downloadPackage('CIAB_SMS_Config_Installer.xml',    returnSmsConfig()) : smsConfigSetting=false;  
    
 }
 
@@ -280,9 +285,109 @@ function buildSmsConfig(){
 
       while(i<rows.length){
         // Do some stuff
+        var d = rows[i].split(",");
+
+        brandArray[0] = d[0];
+        brandArray[1] = d[1];
+        returnSmsConfig(brandArray);
       }
 
 
+
+}
+
+
+// Function used to append new brand config objects to the global sms config variable
+function returnSmsConfig(brandArray){
+
+var string = "  <entities schema=\"nms:delivery\">\r\n" +
+"    <delivery FCP=\"0\" advanced=\"0\" analysisStep=\"0\" builtIn=\"0\" contentModTime=\"\"\r\n" +
+"              contentSource=\"0\" cusDeliveryCode=\"\" cusUtmCampaign=\"\" cusUtmMedium=\"\"\r\n" +
+"              cusUtmSource=\"\" executionType=\"0\" forcePreparation=\"0\" hasAttachments=\"0\"\r\n" +
+"              hideAudienceStep=\"0\" isMaster=\"0\" isTemplate=\"1\" label=\""+ brandArray[1]+"_"+brandArray[0]+"_SMS\"\r\n" +
+"              name=\""+ brandArray[1]+"_"+brandArray[0]+"_SMS\" priority=\"10\" resourceVersion=\"head\" signKey=\"\"\r\n" +
+"              sourceId=\"0\" thumbnail=\"http://unilever-mkt-prod5-res.adobe-campaign.com/res/unileve_mkt_prod5/c8667f9543b79cdb2cac39e10eb33bc2.png\">\r\n" +
+"      <forecast simuResponseType=\"0\" weight=\"5\" weightType=\"0\">\r\n" +
+"        <weightFormula>$(deliveryWeight)</weightFormula>\r\n" +
+"      </forecast>\r\n" +
+"      <scheduling IPAffinity=\"\" contactDate=\"\" contactDateTimeZone=\"Europe/London\"\r\n" +
+"                  delayExtraction=\"0\" delayed=\"0\" extracted=\"\" extraction=\"\" sendingMode=\"0\"\r\n" +
+"                  staggered=\"1\" validationMode=\"manual\" validityDate=\"\" webResPurged=\"0\"\r\n" +
+"                  webValidityDate=\"\"></scheduling>\r\n" +
+"      <abTesting decisionMode=\"manual\" decisionStrategy=\"openRate\" enabled=\"0\" learningPeriod=\"86400\"\r\n" +
+"                 learningSizeMode=\"manual\" pulseNotificationSent=\"false\" testMode=\"subject\"\r\n" +
+"                 winner=\"\"></abTesting>\r\n" +
+"      <execution broadEndDate=\"\" broadStartDate=\"\" firstPassEndDate=\"\" maxRetry=\"5\"\r\n" +
+"                 nextPassDate=\"\" passStartDate=\"\" retry=\"0\" retryPeriod=\"3600\">\r\n" +
+"        <controlGroup type=\"3\"/>\r\n" +
+"      </execution>\r\n" +
+"      <scenario aggregationPeriod=\"0\" validityDuration=\"432000\" webValidityDuration=\"5184000\"/>\r\n" +
+"      <fcpParameters addFormatInPrefix=\"true\" fcpMailFormat=\"normal\" fcpVariantSel=\"auto\"\r\n" +
+"                     labelPrefix=\"Proof\" useSpecificOutputFile=\"false\"/>\r\n" +
+"      <mailParameters mirrorPagePolicy=\"default\" needMirrorPage=\"0\"/>\r\n" +
+"      <smsParameters maxSmsPerMessage=\"1\" mobileMsgType=\"0\" smsAppType=\"2\" smsMode=\"-1\"\r\n" +
+"                     smsPriority=\"0\" sourceAddress=\"Day2\"/>\r\n" +
+"      <pushnotificationParameters maxPushnotificationPayloadSize=\"4096\"/>\r\n" +
+"      <targets audienceType=\"acsAudience\" filteringSchema=\"\" maxErrorCount=\"3\" qualityRequired=\"3\">\r\n" +
+"        <deliveryTarget>\r\n" +
+"          <where filteringResource=\"profile\" filteringSchema=\"\" targetResource=\"profile\"></where>\r\n" +
+"        </deliveryTarget>\r\n" +
+"        <seedTarget>\r\n" +
+"          <where filteringSchema=\"nms:seedMember\"></where>\r\n" +
+"        </seedTarget>\r\n" +
+"      </targets>\r\n" +
+"      <content contextResource=\"profile\" defaultVariant=\"default\" formatSelection=\"preferences\"\r\n" +
+"               htmlCompression=\"false\" ignoreScripts=\"false\">\r\n" +
+"        <sms variant=\"default\" variantLabel=\"Default\"/>\r\n" +
+"        <scriptContext name=\"default\"/>\r\n" +
+"      </content>\r\n" +
+"      <output seedInsertMode=\"0\">\r\n" +
+"        <extraction>\r\n" +
+"          <source batchSize=\"200\" format=\"text\" startPath=\"/\" upload=\"true\">\r\n" +
+"            <dataSourceConfig codepage=\"1252\" colType=\"0\" ignoreConfigCheck=\"false\"\r\n" +
+"                              strictColumnCheck=\"false\" textQualifier=\"none\" timezone=\"_inherit_\"\r\n" +
+"                              useCR=\"false\" useLF=\"false\"/>\r\n" +
+"            <dataSourceConfigDest codepage=\"1252\" colType=\"0\" ignoreConfigCheck=\"false\"\r\n" +
+"                                  strictColumnCheck=\"false\" textQualifier=\"none\"\r\n" +
+"                                  timezone=\"_inherit_\" useCR=\"false\" useLF=\"false\"/>\r\n" +
+"          </source>\r\n" +
+"          <destination downloadDestFile=\"true\" endRecord=\"0\" progressLines=\"20\" putUnmappedCols=\"true\"\r\n" +
+"                       startPath=\"/\" startRecord=\"0\" transactionLines=\"200\">\r\n" +
+"            <exportFormat allAsString=\"false\" analyze=\"false\" codepage=\"1252\" delEscaping=\"duplicateDel\"\r\n" +
+"                          delimitor=\"delNone\" format=\"text\" lineEnd=\"0\" saveTitle=\"true\"\r\n" +
+"                          separator=\"sepTab\" timezone=\"_inherit_\">\r\n" +
+"              <dataFormat decimalCount=\"-1\" hideTime=\"false\" orderDate=\"ymd\" sepDate=\"/\"\r\n" +
+"                          sepDateTime=\" \" sepNumber=\".\" sepThousand=\"false\" sepTime=\":\"\r\n" +
+"                          showMs=\"false\" showSec=\"true\" yearShort=\"false\"/>\r\n" +
+"            </exportFormat>\r\n" +
+"          </destination>\r\n" +
+"        </extraction>\r\n" +
+"      </output>\r\n" +
+"      <tracking enabled=\"false\" openEnabled=\"true\">\r\n" +
+"        <clickFormula><![CDATA[<%@ include option='NmsTracking_ClickFormula' %>]]></clickFormula>\r\n" +
+"        <openFormula><![CDATA[<%@ include option='NmsTracking_OpenFormula' %>]]></openFormula>\r\n" +
+"      </tracking>\r\n" +
+"      <notifications pulseAbTestComplete=\"true\"/>\r\n" +
+"      <advancedParameters businessRankingRuleActive=\"false\" codepage=\"65001\" emailArchiving=\"false\"\r\n" +
+"                          forceCodepage=\"false\" showSQL=\"false\" verifyMode=\"false\"/>\r\n" +
+"      <properties FCPCount=\"0\" ctrlGrpExclusion=\"0\" deliveryState=\"0\" exclusion=\"0\"\r\n" +
+"                  renderingCount=\"0\" scenarioModTime=\"\" toDeliver=\"0\" trapCount=\"0\"\r\n" +
+"                  url=\"0\"></properties>\r\n" +
+"      <desc><![CDATA[This wizard allows you to define a mobile phone delivery. In this advanced mode, all options are available.]]></desc>\r\n" +
+"      <volume duration=\"1\" rate=\"100\"/>\r\n" +
+"      <offerManagement active=\"0\" batchId=\"\"/>\r\n" +
+"      <validation sandboxMode=\"0\"/>\r\n" +
+"      <triggerMessage eventType=\"\" mcTemplateId=\"0\"/>\r\n" +
+"      <orgUnit _operation=\"none\" name=\"all\"/>\r\n" +
+"      <geoUnit _operation=\"none\" name=\"all\"/>\r\n" +
+"      <deliveryProvider _operation=\"none\" name=\""+brandArray[0].toLower()+"_Unilever"+brandArray[0]+"SMPPSSL\"/>\r\n" +
+"      <typology _operation=\"none\" name=\"defaultTypology\"/>\r\n" +
+"      <mapping _operation=\"none\" name=\"mapRecipient\"/>\r\n" +
+"      <branding _operation=\"none\" name=\"branding\"/>\r\n" +
+"    </delivery>\r\n" +
+"  </entities>\r\n";
+
+SmsConfig = SmsConfig + string;
 
 }
 
@@ -345,6 +450,11 @@ function returnContentBlockXml(){
 }
 
 function returnSmsConfig(){
+
+  SmsConfig = SmsConfig + + "</package>\r\n";
+  return SmsConfig;
+
+
 
 }
 
