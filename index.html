@@ -6,9 +6,16 @@ function initSampleData() {
 "UDHD_MARKET,UDHD_BRAND_NAME,UDHD_LANGUAGE,UDHD_REPLY_TO_ADDRESS,UDHD_REPLY_TO_NAME,UDHD_PREF_CENTER,UDHD_WEBSITE_DOMAIN,UDHD_LOGO,UDHD_PRIVACY_POLICY,UDHD_COOKIE_POLICY\r\n"+
 "PK,Ponds,EN,cec.philippines@unilever.com,Unilever Customer Care,,ponds.com,,,\r\n"+
 "PK,Cif,AR,cec.philippines@unilever.com,cec.philippines@unilever.com,,cif.com,,,";
+}
 
-//document.getElementById('tbCSV').value = document.getElementById('tbCSV').value + getMarketMapping("AU");
-
+function initSMSData() {
+  //Adding default data to textbox
+  document.getElementById('tbSMS').value = 
+"BRAND_NAME, ISO_COUNTRY\r\n"+
+"PONDS,TH\r\n"+
+"SURF,TH\r\n"+
+"DOVE,TH\r\n"+
+"PK,TH";
 }
 
 // UPDATE METHOD TO RETURN SERVER.NOW WITH UTC SET
@@ -161,6 +168,8 @@ function iterateCsvData(){
         welcomePackageBody(brandArray, brandArray[13].toString());
         buildTransactionalEmailXml(brandArray);
         buildTransactionalSMSXml(brandArray);
+
+
         
         //downloadPackage('varDump.txt',varDump(brandArray)); TOGGLE TO VIEW BRANDARRAY VALUES
 
@@ -175,6 +184,10 @@ function iterateCsvData(){
        buildOTPtransactionalSMS(brandArray);
 
    // }
+
+
+   buildSmsConfig();
+
 
     // Call footer append functions and insert into download file
     updateInstallerSettings();
@@ -256,6 +269,21 @@ function generateDistinctList(brandArray){
 
 }
 
+function buildSmsConfig(){
+
+  // Iterate through SMS config dump text area and generate SMS Configuration
+  var csvData = document.getElementById('tbSMS').value;
+  var dataArr = csvData.split(/\r|\n/);
+  var rows = dataArr.splice(1,dataArr.length-1);
+  var brandArray = new Array();
+  var i =0;
+
+      while(i<rows.length){
+
+
+
+}
+
 // Function which loops through array of brand parameters to build series of branding entities within XML schema
 function returnBrandingXML(brandArray){
 
@@ -312,6 +340,10 @@ function returnOTPtransactionalSMS(brandArray){
 function returnContentBlockXml(){
     contentBlocks = contentBlocks + "</package>\r\n";
   return contentBlocks;
+}
+
+function returnSmsConfig(){
+
 }
 
 
@@ -2334,7 +2366,15 @@ function buildOTPtransactionalSMS(brandArray){
 
 <!-- Set to display:block in order to troubleshoot. Otherwise keep it to display:none -->
 <div style="display:none;">
-<H1>Step 1a - Convert to XML</H1>
+  <H1>Step 1a - Convert to XML</H1>
+
+  <button id="btConvertToXml" onclick="" readonly="true">Convert To XML</button><br/>
+</div>
+
+<H1>Provide SMS Brand List:</H1>
+<button id="btInitSMSdata" onclick="initSmsData();">Show me an example of an SMS brand list</button></br>
+<textarea name="" id="tbSMS" cols="100" rows="3"></textarea>
+
 
 <button id="btConvertToXml" onclick="" readonly="true">Convert To XML</button><br/>
 
