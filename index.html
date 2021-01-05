@@ -55,6 +55,7 @@ var transactionalSmsSetting   = "";
 var OtpSmsSetting   = "";
 var OtpEmlSetting   = "";
 var contentBlockSetting = "";
+var smsConfigSetting = "";
 var distinctMarkets = [];
 var distinctLanguage = [];
 
@@ -70,6 +71,7 @@ function  updateInstallerSettings(){
   (document.getElementById("OtpSmsInstaller").checked == true) ?  OtpSmsSetting = true : OtpSmsSetting = false;
   (document.getElementById("OtpEmlInstaller").checked == true) ?  OtpEmlSetting = true : OtpEmlSetting = false;
   (document.getElementById("contentBlockInstaller").checked == true) ?  contentBlockSetting = true : contentBlockSetting = false;
+  (document.getElementById("smsConfigInstaller").checked == true) ?  smsConfigSetting = true : smsConfigSetting = false;
 
 }
 
@@ -185,6 +187,10 @@ function iterateCsvData(){
     (OtpEmlSetting == true) ? downloadPackage('CIAB_OTP_EMAIL_Installer.xml', returnOTPtransactionalEML()) : OtpEmlSetting=false;
     (OtpSmsSetting == true) ? downloadPackage('CIAB_OTP_SMS_Installer.xml',    returnOTPtransactionalSMS()) : OtpSmsSetting=false;    
     (contentBlockSetting == true) ? downloadPackage('CIAB_ContentBlock_' + distinctLanguage.toString() +'_Installer.xml',    returnContentBlockXml()) : contentBlockSetting=false;  
+
+
+// SMS Config Package Setting
+     (smsConfigSetting == true) ? downloadPackage('CIAB_SMS_Config_Installer.xml',    returnContentBlockXml()) : smsConfigSetting=false;  
    
 }
 
@@ -2376,8 +2382,18 @@ XSD template: <br/>
     <input type="checkbox" id="OtpEmlInstaller" >
       <label for="OtpEmlInstaller"> OTP Transactional Email installer</label>   
   <br>
+
+    <br>
+    <input type="checkbox" id="smsConfigInstaller" >
+      <label for="smsConfigInstaller"> New SMS Config Package</label>   
   <br>
   <br>
+  <br>
+
+
+  <h2> Enter SMS Setup CSV Below </h2>
+  <textarea name="" id="tbSMS" cols="100" rows="3"></textarea>
+
 <button type="button" id="btGenDownloadPackage" onclick="iterateCsvData();" readonly="true">Download ACS package</button><br/>
   <br>
   <br>
